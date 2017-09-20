@@ -83,3 +83,12 @@ $("#search-input").on("blur", (function () {
 }));
 
 
+//floating menu
+$(window).scroll(function () {
+    if ($(window).scrollTop() >= 140) {
+        $('#floating-menu').addClass('fixed-header');
+    }
+    else {
+        $('#floating-menu').removeClass('fixed-header');
+    }
+});
