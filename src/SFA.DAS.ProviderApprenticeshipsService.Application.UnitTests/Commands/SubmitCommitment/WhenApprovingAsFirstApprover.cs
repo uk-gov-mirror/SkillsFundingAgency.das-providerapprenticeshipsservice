@@ -14,7 +14,6 @@ using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using SFA.DAS.Commitments.Api.Client.Interfaces;
 using SFA.DAS.Commitments.Api.Types.Commitment;
 using SFA.DAS.Commitments.Api.Types.Commitment.Types;
-using SFA.DAS.HashingService;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Application.UnitTests.Commands.SubmitCommitment
 {
@@ -24,7 +23,6 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.UnitTests.Commands.
         private SubmitCommitmentCommand _validCommand;
         private Mock<IProviderCommitmentsApi> _mockCommitmentsApi;
         private Mock<IMediator> _mockMediator;
-        private Mock<IHashingService> _mockHashingService;
         private SubmitCommitmentCommandHandler _handler;
 
         [SetUp]
@@ -56,11 +54,9 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Application.UnitTests.Commands.
                     }
                 });
 
-            _mockHashingService = new Mock<IHashingService>();
-
             var configuration = new ProviderApprenticeshipsServiceConfiguration { EnableEmailNotifications = true };
             _mockMediator = new Mock<IMediator>();
-            _handler = new SubmitCommitmentCommandHandler(_mockCommitmentsApi.Object, new SubmitCommitmentCommandValidator(), _mockMediator.Object, configuration, _mockHashingService.Object);
+            _handler = new SubmitCommitmentCommandHandler(_mockCommitmentsApi.Object, new SubmitCommitmentCommandValidator(), _mockMediator.Object, configuration);
         }
 
         [Test]
