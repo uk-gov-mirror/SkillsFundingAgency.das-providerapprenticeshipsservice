@@ -7,8 +7,30 @@
 <html lang="en">
 <!--<![endif]-->
 <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!-- TODO .Net - make  UA-83918739-9 configurable, UA-83918739-9 for pre-prod, UA‌-83918739-10 for Prod throughout following script tag-->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA‌-83918739-9"></script>
+    <!-- TODO .Net - make  UA-83918739-9 configurable, UA-83918739-9 for pre-prod, UA‌-83918739-10 for Prod throughout following script tag-->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA‌-83918739-9');
+    </script>
+    <!-- End global site tag (gtag.js) - Google Analytics -->
     <meta charset="utf-8" />
     <title>@ViewBag.Title - Apprenticeships</title>
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            wl‌ = wl‌ || []‌; wl.push(
+                { 'gtm.start': new Date().getTime(), event: 'gtm.js' }
+            ); var f = d.getElementsByTagName(s)0,
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-KWQBWGJ');</script>
+    <!-- End Google Tag Manager -->
     <!--[if gt IE 8]><!-->
     <link href="~/dist/css/govuk-template.css" media="screen" rel="stylesheet" /><!--<![endif]-->
     <!--[if IE 6]><link href="/dist/css/govuk-template-ie6.css" media="screen" rel="stylesheet" /><![endif]-->
@@ -35,15 +57,6 @@
     <!--[if gt IE 8]><!-->
     <link href="@Styles.Url("~/bundles/screen")" media="all" rel="stylesheet" />
     <!--<![endif]-->
-    <!-- Google Tag Manager -->
-    <script>
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window, document, 'script', 'dataLayer', 'GTM-PFR238K');
-    </script>
-    <!-- End Google Tag Manager -->
     <script type="text/javascript">
         var appInsights = window.appInsights || function (config) {
             function r(config) { t[config] = function () { var i = arguments; t.queue.push(function () { t[config].apply(t, i) }) } } var t = { config: config }, u = document, e = window, o = "script", s = u.createElement(o), i, f; s.src = config.url || "//az416426.vo.msecnd.net/scripts/a/ai.0.js"; u.getElementsByTagName(o)[0].parentNode.appendChild(s); try { t.cookie = u.cookie } catch (h) { } for (t.queue = [], i = ["Event", "Exception", "Metric", "PageView", "Trace", "Dependency"]; i.length;) r("track" + i.pop()); return r("setAuthenticatedUserContext"), r("clearAuthenticatedUserContext"), config.disableExceptionTracking || (i = "onerror", r("_" + i), f = e[i], e[i] = function (config, r, u, e, o) { var s = f && f(config, r, u, e, o); return s !== !0 && t["_" + i](config, r, u, e, o), s }), t
@@ -59,8 +72,7 @@
 <body id="@ViewBag.PageId">
     <!-- Google Tag Manager (noscript) -->
     <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFR238K"
-                height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KWQBWGJ" height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
@@ -122,7 +134,7 @@
         </div>
     }
 
-    <main role="main"  id="content">
+    <main role="main" id="content">
         @if (HttpContext.Current.User.Identity.IsAuthenticated && !(ViewBag?.HideNavBar ?? false))
         {
             var controllerName = ViewContext.RouteData.Values["Controller"].ToString(); ;
@@ -144,10 +156,10 @@
             </div>
         }
         @RenderSection("breadcrumb", required: false)
-    
+
         @Html.Partial(@"_ModalMessage")
         @RenderBody()
-      
+
     </main>
 
     <footer class="group js-footer" id="footer" role="contentinfo">
