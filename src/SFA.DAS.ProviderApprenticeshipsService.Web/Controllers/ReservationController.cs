@@ -67,7 +67,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
 
             var account = confirmViewModel.EmployerAccountPublicHashedId;
             var legalEntity = confirmViewModel.EmployerAccountLegalEntityPublicHashedId;
-            return Redirect(_linkGenerator.ReservationsLink($"{providerId}/account/{account}/legalentity/{legalEntity}"));
+            return Redirect(_linkGenerator.ReservationsLink(providerId,$"/account/{account}/legalentity/{legalEntity}"));
         }
     }
 }

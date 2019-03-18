@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using SFA.DAS.AutoConfiguration;
 
 namespace SFA.DAS.ProviderUrlHelper
@@ -13,28 +15,84 @@ namespace SFA.DAS.ProviderUrlHelper
                 new Lazy<ProviderUrlConfiguration>(() => LoadProviderUrlConfiguration(autoConfigurationService));
         }
 
-        public string ProviderCommitmentsLink(string path)
+        public string ProviderCommitmentsLink(int? providerId, string path)
         {
-            var configuration = _lazyProviderConfiguration.Value;
-            var baseUrl = configuration.ProviderCommitmentsBaseUrl;
+            var baseUrl = GetBaseUrl("ProviderCommitmentsBaseUrl");
+            return Action(ReplaceProviderId(baseUrl, providerId), path);
+            }
 
-            return Action(baseUrl, path);
+        public string ProviderApprenticeshipServiceLink(int? providerId, string path)
+        {
+            var baseUrl = GetBaseUrl("ProviderApprenticeshipServiceBaseUrl");
+            return Action(ReplaceProviderId(baseUrl, providerId), path);
         }
 
-        public string ProviderApprenticeshipServiceLink(string path)
+        public string ReservationsLink(int? providerId, string path)
         {
-            var configuration = _lazyProviderConfiguration.Value;
-            var baseUrl = configuration.ProviderApprenticeshipServiceBaseUrl;
-
-            return Action(baseUrl, path);
+            var baseUrl = GetBaseUrl("ReservationsBaseUrl");
+            return Action(ReplaceProviderId(baseUrl, providerId), path);
         }
 
-        public string ReservationsLink(string path)
+        public string GenerateNavigationBar(Uri currentUri, int? providerId, string sectionOverride ="")
+        {
+            var result = new StringBuilder();
+            var configuration = _lazyProviderConfiguration.Value;
+            foreach (var section in configuration.Sections)
+            {
+                //find the base url
+                var baseUrl = GetBaseUrl(section.BaseUrlKey);
+
+                //var linkHtml = Action(ReplaceProviderId(baseUrl, providerId), link.Path);
+                //todo: html writer/tag builder
+
+                var url = Action(baseUrl, section.Path);
+                var linkHtml = ReplaceProviderId(url, providerId);
+
+                var cssClass = "";
+                if (!String.IsNullOrWhiteSpace(sectionOverride))
+                {
+                    if (sectionOverride == section.SectionId)
+                    {
+                        cssClass = "selected";
+                    }
+                }
+                else if (currentUri.ToString().StartsWith(linkHtml))
+                {
+                    cssClass = "selected";
+                }
+                
+                result.Append("<li>");
+                result.Append("<a href=\"");
+                result.Append(linkHtml);
+                result.Append("\" role =\"menuitem\"");
+                result.Append($" class=\"{cssClass}\"");
+                result.Append(">");
+                result.Append(section.LinkText);
+                result.Append("</a>");
+                result.Append("</li>");
+
+                    //role = "menuitem" class="@(controllerName == "Account" ? "selected" : "")">Home</a></li>
+
+            }
+
+            return result.ToString();
+        }
+
+        public string GetBaseUrl(string key)
         {
             var configuration = _lazyProviderConfiguration.Value;
-            var baseUrl = configuration.ReservationsBaseUrl;
+            var result = configuration.BaseUrls.SingleOrDefault(x => x.BaseUrlKey == key);
+            return result != null ? result.BaseUrlValue : "";
+        }
 
-            return Action(baseUrl, path);
+        private string ReplaceProviderId(string url, int? providerId)
+        {
+            if (providerId.HasValue)
+            {
+                return url.Replace("{providerId}", providerId.Value.ToString());
+            }
+
+            return url;
         }
 
         private ProviderUrlConfiguration LoadProviderUrlConfiguration(IAutoConfigurationService autoConfigurationService)

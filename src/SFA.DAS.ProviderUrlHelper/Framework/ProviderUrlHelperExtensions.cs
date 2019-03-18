@@ -6,25 +6,25 @@ namespace SFA.DAS.ProviderUrlHelper.Framework
 {
     public static class ProviderUrlHelperExtensions
     {
-        public static string ProviderCommitmentsLink(this UrlHelper helper, string path)
+        public static string ProviderCommitmentsLink(this UrlHelper helper, int? providerId, string path)
         {
             var linkGenerator = GetLinkGenerator();
             
-            return linkGenerator.ProviderCommitmentsLink(path);
+            return linkGenerator.ProviderCommitmentsLink(providerId, path);
         }
 
-        public static string ProviderApprenticeshipServiceLink(this UrlHelper helper, string path)
+        public static string ProviderApprenticeshipServiceLink(this UrlHelper helper, int? providerId, string path)
         {
             var linkGenerator = GetLinkGenerator();
 
-            return linkGenerator.ProviderApprenticeshipServiceLink(path);
+            return linkGenerator.ProviderApprenticeshipServiceLink(providerId, path);
         }
 
-        public static string ReservationsLink(this UrlHelper helper, string path)
+        public static string ReservationsLink(this UrlHelper helper, int? providerId, string path)
         {
             var linkGenerator = GetLinkGenerator();
 
-            return linkGenerator.ReservationsLink(path);
+            return linkGenerator.ReservationsLink(providerId, path);
         }
 
         private static ILinkGenerator GetLinkGenerator()

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.AutoConfiguration;
@@ -18,7 +18,7 @@ namespace SFA.DAS.ProviderUrlHelperTests
             var fixtures = new LinkGeneratorTestFixtures()
                 .WithProviderApprenticeshipServiceBaseUrl(providerApprenticeshipServiceUrl);
 
-            var actualUrl = fixtures.GetProviderfApprenticeshipServiceLink(path);
+            var actualUrl = fixtures.GetProviderApprenticeshipServiceLink(1, path);
 
             Assert.AreEqual(expectedUrl, actualUrl);
         }
@@ -29,27 +29,29 @@ namespace SFA.DAS.ProviderUrlHelperTests
         {
             AutoConfigurationServiceMock = new Mock<IAutoConfigurationService>();
 
-            ProviderUrlConfiguration = new ProviderUrlConfiguration();
+            ProviderUrlConfiguration = new ProviderUrlConfiguration
+            {
+                BaseUrls = new[] {new BaseUrlKeyValuePair {BaseUrlKey = "ProviderApprenticeshipServiceBaseUrl", BaseUrlValue = "base"}}
+            };           
 
             AutoConfigurationServiceMock.Setup(acs => acs.Get<ProviderUrlConfiguration>()).Returns(ProviderUrlConfiguration);
         }
 
         public ProviderUrlConfiguration ProviderUrlConfiguration { get; }
-
         public Mock<IAutoConfigurationService> AutoConfigurationServiceMock { get; }
         public IAutoConfigurationService AutoConfigurationService => AutoConfigurationServiceMock.Object;
 
-
         public LinkGeneratorTestFixtures WithProviderApprenticeshipServiceBaseUrl(string baseUrl)
         {
-            ProviderUrlConfiguration.ProviderApprenticeshipServiceBaseUrl = baseUrl;
+            var config = ProviderUrlConfiguration.BaseUrls.Single(x => x.BaseUrlKey == "ProviderApprenticeshipServiceBaseUrl");
+            config.BaseUrlValue = baseUrl;
             return this;
         }
 
-        public string GetProviderfApprenticeshipServiceLink(string path)
+        public string GetProviderApprenticeshipServiceLink(int providerId, string path)
         {
             var linkGenerator = new LinkGenerator(AutoConfigurationService);
-            return linkGenerator.ProviderApprenticeshipServiceLink(path);
+            return linkGenerator.ProviderApprenticeshipServiceLink(providerId, path);
         }
     }
 }
