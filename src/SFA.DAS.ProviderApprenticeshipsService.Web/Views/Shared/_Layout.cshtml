@@ -132,19 +132,16 @@
                     var controllerName = ViewContext.RouteData.Values["Controller"].ToString(); ;
                     var providerId = int.Parse(User.Identity.GetClaim("http://schemas.portal.com/ukprn"));
                     var linkGenerator = DependencyResolver.Current.GetService<ILinkGenerator>();
-                    var url = HttpContext.Current.Request.Url;
-            
-                    var sectionOverride = "";
+                    var url = HttpContext.Current.Request.Url.ToString();
+
+                    LinkGenerator.NavigationSection? sectionOverride = null;
                     switch (controllerName)
                     {
-                     case "Account":
-                         sectionOverride = "Account";
-                         break;
                      case "ManageApprentices":
-                         sectionOverride = "ManageApprentices";
+                         sectionOverride =  LinkGenerator.NavigationSection.ManageApprentices;
                          break;
                      case "Commitment":
-                         sectionOverride = "YourCohorts";
+                         sectionOverride =  LinkGenerator.NavigationSection.YourCohorts;
                          break;
                     }
                  
@@ -152,11 +149,9 @@
                     <div class="column-full">
                         <div class="header-organisation" role="navigation">
                             <nav class="header-inner">
-                                <ul role="menubar" id="global-nav-links">
-
-                                    @Html.Raw(@linkGenerator.GenerateNavigationBar(url, providerId, sectionOverride)) //todo: raw here?
-
-                                </ul>
+                                
+                                @Html.Raw(@linkGenerator.GenerateNavigationBar(url, providerId, sectionOverride))
+                                
                             </nav>
                         </div>
                     </div>

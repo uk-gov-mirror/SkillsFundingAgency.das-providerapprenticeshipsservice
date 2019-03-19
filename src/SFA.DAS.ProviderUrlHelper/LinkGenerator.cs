@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using SFA.DAS.AutoConfiguration;
 
@@ -15,84 +14,28 @@ namespace SFA.DAS.ProviderUrlHelper
                 new Lazy<ProviderUrlConfiguration>(() => LoadProviderUrlConfiguration(autoConfigurationService));
         }
 
-        public string ProviderCommitmentsLink(int? providerId, string path)
-        {
-            var baseUrl = GetBaseUrl("ProviderCommitmentsBaseUrl");
-            return Action(ReplaceProviderId(baseUrl, providerId), path);
-            }
-
-        public string ProviderApprenticeshipServiceLink(int? providerId, string path)
-        {
-            var baseUrl = GetBaseUrl("ProviderApprenticeshipServiceBaseUrl");
-            return Action(ReplaceProviderId(baseUrl, providerId), path);
-        }
-
-        public string ReservationsLink(int? providerId, string path)
-        {
-            var baseUrl = GetBaseUrl("ReservationsBaseUrl");
-            return Action(ReplaceProviderId(baseUrl, providerId), path);
-        }
-
-        public string GenerateNavigationBar(Uri currentUri, int? providerId, string sectionOverride ="")
-        {
-            var result = new StringBuilder();
-            var configuration = _lazyProviderConfiguration.Value;
-            foreach (var section in configuration.Sections)
-            {
-                //find the base url
-                var baseUrl = GetBaseUrl(section.BaseUrlKey);
-
-                //var linkHtml = Action(ReplaceProviderId(baseUrl, providerId), link.Path);
-                //todo: html writer/tag builder
-
-                var url = Action(baseUrl, section.Path);
-                var linkHtml = ReplaceProviderId(url, providerId);
-
-                var cssClass = "";
-                if (!String.IsNullOrWhiteSpace(sectionOverride))
-                {
-                    if (sectionOverride == section.SectionId)
-                    {
-                        cssClass = "selected";
-                    }
-                }
-                else if (currentUri.ToString().StartsWith(linkHtml))
-                {
-                    cssClass = "selected";
-                }
-                
-                result.Append("<li>");
-                result.Append("<a href=\"");
-                result.Append(linkHtml);
-                result.Append("\" role =\"menuitem\"");
-                result.Append($" class=\"{cssClass}\"");
-                result.Append(">");
-                result.Append(section.LinkText);
-                result.Append("</a>");
-                result.Append("</li>");
-
-                    //role = "menuitem" class="@(controllerName == "Account" ? "selected" : "")">Home</a></li>
-
-            }
-
-            return result.ToString();
-        }
-
-        public string GetBaseUrl(string key)
+        public string ProviderCommitmentsLink(int providerId, string path)
         {
             var configuration = _lazyProviderConfiguration.Value;
-            var result = configuration.BaseUrls.SingleOrDefault(x => x.BaseUrlKey == key);
-            return result != null ? result.BaseUrlValue : "";
+            var baseUrl = configuration.ProviderCommitmentsBaseUrl;
+
+           return Action(baseUrl, path);
         }
 
-        private string ReplaceProviderId(string url, int? providerId)
+        public string ProviderApprenticeshipServiceLink(int providerId, string path)
         {
-            if (providerId.HasValue)
-            {
-                return url.Replace("{providerId}", providerId.Value.ToString());
-            }
+            var configuration = _lazyProviderConfiguration.Value;
+            var baseUrl = configuration.ProviderApprenticeshipServiceBaseUrl;
 
-            return url;
+            return Action(baseUrl, path);
+        }
+
+        public string ReservationsLink(int providerId, string path)
+        {
+            var configuration = _lazyProviderConfiguration.Value;
+            var baseUrl = configuration.ReservationsBaseUrl;
+
+            return Action(baseUrl, path);
         }
 
         private ProviderUrlConfiguration LoadProviderUrlConfiguration(IAutoConfigurationService autoConfigurationService)
@@ -108,6 +51,66 @@ namespace SFA.DAS.ProviderUrlHelper
             var trimmedPath = path.Trim('/');
 
             return $"{trimmedBaseUrl}/{trimmedPath}";
+        }
+
+        public string GenerateNavigationBar(string currentUrl, int providerId, NavigationSection? sectionOverride)
+        {
+            var result = new StringBuilder();
+            result.Append("<ul role=\"menubar\" id=\"global - nav - links\">");
+            result.Append(GenerateNavigationLink(ProviderApprenticeshipServiceLink(providerId, "/account"), currentUrl, "Home", sectionOverride == NavigationSection.Home));
+            result.Append(GenerateNavigationLink(ProviderApprenticeshipServiceLink(providerId, $"/{providerId}/apprentices/manage/all"), currentUrl, "Manage your apprentices", sectionOverride == NavigationSection.ManageApprentices));
+            result.Append(GenerateNavigationLink(ProviderApprenticeshipServiceLink(providerId, $"/{providerId}/apprentices/cohorts"), currentUrl, "Your cohorts", sectionOverride == NavigationSection.YourCohorts));
+            result.Append(GenerateNavigationLink(ProviderApprenticeshipServiceLink(providerId, $"/{providerId}/agreements"), currentUrl, "Organisations and Agreements", sectionOverride == NavigationSection.Agreements));
+            result.Append("</ul>");
+
+            return result.ToString();
+        }
+
+
+        private string GenerateNavigationLink(int providerId, string path, Func<int, string, string> linkFunc, string currentUrl, string linkText, bool selectedByOverride)
+        {
+            var result = new StringBuilder();
+            result.Append("<li>");
+            var url = linkFunc(providerId, path);
+
+            var selectedClass = selectedByOverride || currentUrl.StartsWith(url) ? "selected" : "";
+
+            result.Append("<a href=\"");
+            result.Append(url);
+            result.Append("\" role =\"menuitem\"");
+            result.Append($" class=\"{selectedClass}\"");
+            result.Append(">");
+            result.Append(linkText);
+            result.Append("</a>");
+
+            result.Append("</li>");
+            return result.ToString();
+        }
+
+
+        private string GenerateNavigationLink(string url, string currentUrl, string linkText, bool selectedByOverride)
+        {
+            var result = new StringBuilder();
+            result.Append("<li>");
+            var selectedClass = selectedByOverride || currentUrl.StartsWith(url) ? "selected" : "";
+            
+            result.Append("<a href=\"");
+            result.Append(url);
+            result.Append("\" role =\"menuitem\"");
+            result.Append($" class=\"{selectedClass}\"");
+            result.Append(">");
+            result.Append(linkText);
+            result.Append("</a>");
+
+            result.Append("</li>");
+            return result.ToString();
+        }
+
+
+
+        public enum NavigationSection
+        {
+            Home, ManageApprentices, YourCohorts, Agreements
         }
     }
 }

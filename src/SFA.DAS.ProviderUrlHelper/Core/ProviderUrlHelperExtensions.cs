@@ -6,14 +6,14 @@ namespace SFA.DAS.ProviderUrlHelper.Core
 {
     public static class ProviderUrlHelperExtensions
     {
-        public static string ProviderCommitmentsLink(this UrlHelperBase helper, int? providerId, string path)
+        public static string ProviderCommitmentsLink(this UrlHelperBase helper, int providerId, string path)
         {
             var linkGenerator = GetLinkGenerator(helper.ActionContext.HttpContext);
 
             return linkGenerator.ProviderCommitmentsLink(providerId, path);
         }
 
-        public static string ProviderApprenticeshipServiceLink(this UrlHelperBase helper, int? providerId, string path)
+        public static string ProviderApprenticeshipServiceLink(this UrlHelperBase helper, int providerId, string path)
         {
             var linkGenerator = GetLinkGenerator(helper.ActionContext.HttpContext);
 
@@ -21,7 +21,7 @@ namespace SFA.DAS.ProviderUrlHelper.Core
 
         }
 
-        public static string ReservationsLink(this UrlHelperBase helper, int? providerId, string path)
+        public static string ReservationsLink(this UrlHelperBase helper, int providerId, string path)
         {
             var linkGenerator = GetLinkGenerator(helper.ActionContext.HttpContext);
 
@@ -33,7 +33,7 @@ namespace SFA.DAS.ProviderUrlHelper.Core
             return ServiceLocator.Get<ILinkGenerator>(httpContext);
         }
 
-        public static string GenerateNavigationBar(this UrlHelperBase helper, string currentUri, int? providerId, string sectionOverride ="")
+        public static string GenerateNavigationBar(this UrlHelperBase helper, string currentUri, int providerId, LinkGenerator.NavigationSection? sectionOverride)
         {
             var linkGenerator = GetLinkGenerator(helper.ActionContext.HttpContext);
             return linkGenerator.GenerateNavigationBar(currentUri, providerId, sectionOverride);
