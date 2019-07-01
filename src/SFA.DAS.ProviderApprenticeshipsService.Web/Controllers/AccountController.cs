@@ -1,8 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using IdentityModel;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OpenIdConnect;
 using Microsoft.Owin.Security.WsFederation;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Attributes;
@@ -27,10 +31,17 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
         [Route("~/signin", Name = "signin")]
         public void SignIn()
         {
+            //if (!Request.IsAuthenticated)
+            //{
+            //    HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties {RedirectUri = "/"},
+            //                       WsFederationAuthenticationDefaults.AuthenticationType);
+
+                
+            //}
+
             if (!Request.IsAuthenticated)
             {
-                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties {RedirectUri = "/"},
-                    WsFederationAuthenticationDefaults.AuthenticationType);
+                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, "oidc");
             }
         }
 

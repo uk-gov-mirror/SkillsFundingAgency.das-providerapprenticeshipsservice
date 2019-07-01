@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure;
 using Microsoft.IdentityModel.Protocols;
@@ -11,6 +13,10 @@ using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces;
 using SFA.DAS.ProviderApprenticeshipsService.Web.App_Start;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators;
 using System.Security.Claims;
+using IdentityServer3.Core.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Owin.Security.OpenIdConnect;
+using SFA.DAS.OidcMiddleware;
 using SFA.DAS.ProviderRelationships.Types.Models;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web
@@ -19,10 +25,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
     {
         public void ConfigureAuth(IAppBuilder app)
         {
-            var logger = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<IProviderCommitmentsLogger>();
 
-            var authenticationOrchestrator = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<AuthenticationOrchestrator>();
-            var accountOrchestrator = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<AccountOrchestrator>();
 
             app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
@@ -30,6 +33,37 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
             {
                 CookieManager = new SystemWebCookieManager()
             });
+
+            //UseProviderIdams(app);
+
+            UseFakeIdams(app);
+
+        }
+
+        private void UseFakeIdams(IAppBuilder app)
+        {
+            app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
+            {
+                AuthenticationType = "oidc",
+                SignInAsAuthenticationType = "Cookies",
+                Authority = "https://localhost:44381/",
+                ClientId = "openIdConnectClient",
+                RedirectUri = "https://127.0.0.1:44347/signin-oidc",
+                RequireHttpsMetadata = false,
+                Scope = "openid profile idams",
+                ResponseType = "id_token",
+                UseTokenLifetime = false
+            });
+        }
+
+
+        private void UseProviderIdams(IAppBuilder app)
+        {
+            var logger = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<IProviderCommitmentsLogger>();
+
+            var authenticationOrchestrator = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<AuthenticationOrchestrator>();
+            var accountOrchestrator = StructuremapMvc.StructureMapDependencyScope.Container.GetInstance<AccountOrchestrator>();
+
 
             var realm = CloudConfigurationManager.GetSetting("IdamsRealm");
             var adfsMetadata = CloudConfigurationManager.GetSetting("IdamsADFSMetadata");
@@ -49,6 +83,8 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
 
             app.UseWsFederationAuthentication(options);
         }
+
+
         
         private async Task SecurityTokenValidated(SecurityTokenValidatedNotification<WsFederationMessage, WsFederationAuthenticationOptions> notification, IProviderCommitmentsLogger logger, 
             AuthenticationOrchestrator orchestrator, AccountOrchestrator accountOrchestrator)

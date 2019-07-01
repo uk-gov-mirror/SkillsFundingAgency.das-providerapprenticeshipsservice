@@ -25,6 +25,8 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Attributes
                     throw new HttpException((int) HttpStatusCode.BadRequest, "Missing provider id");
                 }
 
+                var userIdentity = filterContext.HttpContext.User.Identity;
+
                 var claimUkprn = filterContext.HttpContext.GetClaimValue("http://schemas.portal.com/ukprn");
 
                 if ($"{providerIdFromAction}" != claimUkprn)
