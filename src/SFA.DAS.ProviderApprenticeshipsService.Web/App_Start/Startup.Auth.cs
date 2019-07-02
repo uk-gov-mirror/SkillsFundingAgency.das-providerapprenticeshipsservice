@@ -44,7 +44,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
         {
             app.UseOpenIdConnectAuthentication(new OpenIdConnectAuthenticationOptions
             {
-                AuthenticationType = "oidc",
+                AuthenticationType = OpenIdConnectAuthenticationDefaults.AuthenticationType, //"oidc",
                 SignInAsAuthenticationType = "Cookies",
                 Authority = "https://localhost:44381/",
                 ClientId = "openIdConnectClient",

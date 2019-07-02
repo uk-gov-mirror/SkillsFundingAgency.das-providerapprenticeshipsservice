@@ -41,7 +41,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
 
             if (!Request.IsAuthenticated)
             {
-                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, "oidc");
+                HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties { RedirectUri = "/" }, OpenIdConnectAuthenticationDefaults.AuthenticationType);
             }
         }
 
@@ -53,9 +53,12 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.Controllers
 
             var auth = Request.GetOwinContext().Authentication;
 
-            auth.SignOut(
-                new AuthenticationProperties {RedirectUri = callbackUrl},
-                WsFederationAuthenticationDefaults.AuthenticationType, CookieAuthenticationDefaults.AuthenticationType);
+            auth.SignOut(new AuthenticationProperties  { RedirectUri = callbackUrl},
+                OpenIdConnectAuthenticationDefaults.AuthenticationType, CookieAuthenticationDefaults.AuthenticationType);
+
+            //auth.SignOut(
+                //new AuthenticationProperties {RedirectUri = callbackUrl},
+                //WsFederationAuthenticationDefaults.AuthenticationType, CookieAuthenticationDefaults.AuthenticationType);
         }
 
         [DasRoleCheckExempt]
