@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security.OpenIdConnect;
 using SFA.DAS.OidcMiddleware;
 using SFA.DAS.ProviderRelationships.Types.Models;
+using OpenIdConnectMessage = Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web
 {
@@ -52,9 +53,14 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web
                 RequireHttpsMetadata = false,
                 Scope = "openid profile idams",
                 ResponseType = "id_token",
-                UseTokenLifetime = false
+                UseTokenLifetime = false,
+                Notifications = new OpenIdConnectAuthenticationNotifications
+                {
+                    //SecurityTokenValidated = notification => Task.CompletedTask;
+                }
             });
         }
+
 
 
         private void UseProviderIdams(IAppBuilder app)
