@@ -12,9 +12,5 @@
     <PackageReference Include="SFA.DAS.CommitmentsV2.Api.Types" Version="100.0.181" />
     <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
     <PackageReference Include="SFA.DAS.Notifications.Api.Types" Version="2.2.210" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.9" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="10.0.9" />
-    <PackageReference Include="System.Text.Json" Version="10.0.9" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 </Project>

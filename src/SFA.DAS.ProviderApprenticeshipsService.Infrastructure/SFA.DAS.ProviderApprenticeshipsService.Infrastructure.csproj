@@ -22,7 +22,6 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	<PackageReference Include="SFA.DAS.Configuration" Version="17.1.165" />
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.165" />
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.9" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.9" />
     <PackageReference Include="System.Spatial" Version="5.8.5" />
     <PackageReference Include="Pipelines.Sockets.Unofficial" Version="2.2.16" />
@@ -31,9 +30,8 @@
     <PackageReference Include="SFA.DAS.CommitmentsV2.Api.Types" Version="100.0.181" />
     <PackageReference Include="SFA.DAS.CosmosDb.Testing" Version="1.0.47" />
 	<PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
-    <PackageReference Include="SFA.DAS.Notifications.Api.Client" Version="2.2.43" />
+    <PackageReference Include="SFA.DAS.Notifications.Api.Client" Version="2.2.210" />
     <PackageReference Include="StackExchange.Redis" Version="2.13.17" />
-    <PackageReference Include="System.Text.Json" Version="10.0.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
   </ItemGroup>
