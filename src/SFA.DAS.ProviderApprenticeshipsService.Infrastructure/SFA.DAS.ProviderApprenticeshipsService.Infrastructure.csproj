@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.identityModel.Protocols.OpenIdConnect" Version="8.19.1" />
     <PackageReference Include="Polly" Version="8.6.6" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.10" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="17.0.49" />
     <PackageReference Include="System.ComponentModel.Composition" Version="10.0.9" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	<PackageReference Include="SFA.DAS.Configuration" Version="17.1.165" />
