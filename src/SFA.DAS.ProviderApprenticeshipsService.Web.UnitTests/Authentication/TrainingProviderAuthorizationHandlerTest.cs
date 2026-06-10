@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Models.TrainingProvider;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Authentication;
@@ -24,7 +23,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authentication
             {
                 new Claim(DasClaimTypes.Ukprn, ukprn.ToString()),
             };
-            var identity = new ClaimsPrincipal(new[] {new ClaimsIdentity(claims, "TestAuthType")});
+            var identity = new ClaimsPrincipal(new[] { new ClaimsIdentity(claims, "TestAuthType") });
             var context = new AuthorizationHandlerContext(new[] { requirement }, identity, null);
             trainingProviderApiClient.Setup(x => x.GetProviderDetails(ukprn)).ReturnsAsync(apiResponse);
 
@@ -44,7 +43,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authentication
             var claim = new Claim(DasClaimTypes.Ukprn, "test");
             var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[] { claim }) });
             var context = new AuthorizationHandlerContext(new[] { requirement }, claimsPrinciple, null);
-            
+
             //Act
             var actual = await handler.IsProviderAuthorized(context, true);
 
@@ -66,7 +65,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authentication
             {
                 new Claim(DasClaimTypes.Ukprn, ukprn.ToString()),
             };
-            var identity = new ClaimsPrincipal(new[] {new ClaimsIdentity(claims, "TestAuthType")});
+            var identity = new ClaimsPrincipal(new[] { new ClaimsIdentity(claims, "TestAuthType") });
             var context = new AuthorizationHandlerContext(new[] { requirement }, identity, null);
             trainingProviderApiClient.Setup(x => x.GetProviderDetails(ukprn)).ReturnsAsync(apiResponse);
 
@@ -89,7 +88,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authentication
             {
                 new Claim(DasClaimTypes.Ukprn, ukprn.ToString()),
             };
-            var identity = new ClaimsPrincipal(new[] {new ClaimsIdentity(claims, "TestAuthType")});
+            var identity = new ClaimsPrincipal(new[] { new ClaimsIdentity(claims, "TestAuthType") });
             var context = new AuthorizationHandlerContext(new[] { requirement }, identity, null);
             trainingProviderApiClient.Setup(x => x.GetProviderDetails(ukprn)).ReturnsAsync((GetProviderSummaryResult)null);
 

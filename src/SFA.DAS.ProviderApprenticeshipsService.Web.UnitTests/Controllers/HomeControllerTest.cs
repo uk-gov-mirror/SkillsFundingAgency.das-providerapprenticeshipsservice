@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Http;
-using SFA.DAS.ProviderApprenticeshipsService.Web.Authorization;
-using SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.ProviderApprenticeshipsService.Application.Services.UserIdentityService;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Logging;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
+using SFA.DAS.ProviderApprenticeshipsService.Web.Authorization;
+using SFA.DAS.ProviderApprenticeshipsService.Web.Orchestrators;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Controllers
 {

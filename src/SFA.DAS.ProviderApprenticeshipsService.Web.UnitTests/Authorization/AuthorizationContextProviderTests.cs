@@ -6,16 +6,14 @@ using Microsoft.Extensions.Primitives;
 using SFA.DAS.Encoding;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Authorization;
 using SFA.DAS.ProviderApprenticeshipsService.Web.Routing;
-using SFA.DAS.Testing;
 using SFA.DAS.Testing.AutoFixture;
-using Fix = SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authorization.AuthorizationContextProviderTestsFixture;
 
 namespace SFA.DAS.ProviderApprenticeshipsService.Web.UnitTests.Authorization;
 
 
 public class AuthorizationContextProviderTestsNotFluent
 {
-    
+
     [Test, MoqAutoData]
     public void Then_The_Request_And_Feature_Is_Authorised_For_Non_DfeSign_In_Email(
         string email,
@@ -34,14 +32,14 @@ public class AuthorizationContextProviderTestsNotFluent
         httpContextBase.Setup(x => x.User).Returns(claimsPrinciple);
         httpContextBase.Setup(x => x.Request).Returns(httpRequest.Object);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContextBase.Object);
-        
+
         var actual = provider.GetAuthorizationContext();
-        
+
         actual.Should().NotBeNull();
         actual.Get<long>("ukprn").Should().Be(ukprn);
         actual.Get<string>("UserEmail").Should().Be(email);
     }
-    
+
     [Test, MoqAutoData]
     public void Then_The_Request_And_Feature_Is_Authorised_For_DfeSign_In_Email(
         string email,
@@ -60,7 +58,7 @@ public class AuthorizationContextProviderTestsNotFluent
         httpContextBase.Setup(x => x.User).Returns(claimsPrinciple);
         httpContextBase.Setup(x => x.Request).Returns(httpRequest.Object);
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContextBase.Object);
-        
+
         var actual = provider.GetAuthorizationContext();
 
         actual.Should().NotBeNull();
@@ -71,36 +69,56 @@ public class AuthorizationContextProviderTestsNotFluent
 
 [TestFixture]
 [Parallelizable]
-public class AuthorizationContextProviderTests : FluentTest<Fix>
+public class AuthorizationContextProviderTests
 {
     [Test]
     public void WhenGettingAuthorizationContextAndAllRequiredRouteValuesAreAvailable_ThenShouldReturnAuthorizationContextWithAllValuesSet()
     {
-        Run(f => f.SetValidAccountLegalEntityPublicHashedId().SetValidProviderId(), f => f.GetAuthorizationContext(), (f, r) =>
-        {
-            r.Should().NotBeNull();
-            // now that we use the extension method AddProviderPermissionValues() to set the values,
-            // ideally we shouldn't be looking for the individual keys like this (as it's peering into a black box)
-            // but it's the best alternative for now!
-            r.Get<long?>(Fix.ContextKeys.AccountLegalEntityId).Should().Be(f.AccountLegalEntityId);
-            r.Get<long?>(Fix.ContextKeys.Ukprn).Should().Be(f.ProviderId);
-        });
+        // Arrange
+        var fixture = new AuthorizationContextProviderTestsFixture();
+        fixture.SetValidAccountLegalEntityPublicHashedId();
+        fixture.SetValidProviderId();
+
+        // Act
+        var result = fixture.GetAuthorizationContext();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Get<long?>(AuthorizationContextProviderTestsFixture.ContextKeys.AccountLegalEntityId)
+            .Should().Be(fixture.AccountLegalEntityId);
+        result.Get<long?>(AuthorizationContextProviderTestsFixture.ContextKeys.Ukprn)
+            .Should().Be(fixture.ProviderId);
     }
-    
+
     [Test]
     public void WhenGettingAuthorizationContextAndRequiredRouteValuesAreAvailableButProviderIdIsNotValid_ThenShouldThrowException()
     {
-        Run(f => f.SetValidAccountLegalEntityPublicHashedId().SetInvalidProviderId(),
-            f => f.GetAuthorizationContext(),
-            (f, a) => a.Should().ThrowExactly<InvalidOperationException>().WithMessage("AuthorizationContextProvider error - Unable to extract ProviderId"));
+        // Arrange
+        var fixture = new AuthorizationContextProviderTestsFixture();
+        fixture.SetValidAccountLegalEntityPublicHashedId();
+        fixture.SetInvalidProviderId();
+
+        // Act
+        Action act = () => fixture.GetAuthorizationContext();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("AuthorizationContextProvider error - Unable to extract ProviderId");
     }
 
     [Test]
     public void WhenGettingAuthorizationContextAndRequiredRouteValuesAreAvailableButProviderIdIsNotAvailable_ThenShouldThrowException()
     {
-        Run(f => f.SetValidAccountLegalEntityPublicHashedId(),
-            f => f.GetAuthorizationContext(),
-            (f, a) => a.Should().ThrowExactly<InvalidOperationException>().WithMessage("AuthorizationContextProvider error - Unable to extract ProviderId"));
+        // Arrange
+        var fixture = new AuthorizationContextProviderTestsFixture();
+        fixture.SetValidAccountLegalEntityPublicHashedId();
+
+        // Act
+        Action act = () => fixture.GetAuthorizationContext();
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("AuthorizationContextProvider error - Unable to extract ProviderId");
     }
 }
 
@@ -116,29 +134,29 @@ public class AuthorizationContextProviderTestsFixture
     private readonly Mock<IHttpContextAccessor> _httpContext;
     private readonly Mock<IEncodingService> _encodingService;
     private readonly RouteData _routeData;
-    
+
     private IQueryCollection _queryParams;
     private string _providerIdRouteValue;
     private string _accountLegalEntityPublicHashedIdRouteValue;
-    
+
     public long ProviderId { get; set; }
     public long AccountLegalEntityId { get; set; }
-    
+
 
     public AuthorizationContextProviderTestsFixture()
     {
         _routeData = new RouteData();
-        
+
         var actionContextAccessorWrapper = new Mock<IActionContextAccessorWrapper>();
         actionContextAccessorWrapper.Setup(c => c.GetRouteData()).Returns(_routeData);
-        
+
         _httpContext = new Mock<IHttpContextAccessor>();
         _httpContext.Setup(c => c.HttpContext.User).Returns(new GenericPrincipal(new Mock<IIdentity>().Object, Array.Empty<string>()));
 
         _encodingService = new Mock<IEncodingService>();
-        
+
         _authorizationContextProvider = new AuthorizationContextProvider(_httpContext.Object,
-            _encodingService.Object, 
+            _encodingService.Object,
             Mock.Of<ILogger<AuthorizationContextProvider>>(),
             actionContextAccessorWrapper.Object);
     }
@@ -152,7 +170,7 @@ public class AuthorizationContextProviderTestsFixture
     {
         _accountLegalEntityPublicHashedIdRouteValue = "ABC123";
         AccountLegalEntityId = 123;
-            
+
         var accountLegalEntityPublicHashedId = new Dictionary<string, StringValues>()
         {
             { RouteDataKeys.EmployerAccountLegalEntityPublicHashedId, new StringValues(_accountLegalEntityPublicHashedIdRouteValue) }

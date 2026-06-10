@@ -1,6 +1,6 @@
-﻿using SFA.DAS.PAS.Account.Api.Authorization;
+﻿using Asp.Versioning;
+using SFA.DAS.PAS.Account.Api.Authorization;
 using SFA.DAS.PAS.Account.Api.Orchestrator;
-using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Logging;
 
 namespace SFA.DAS.PAS.Account.Api.Controllers;
@@ -28,7 +28,7 @@ public class UserController : Controller
 
         var result = await _orchestrator.GetUserWithSettings(userRef);
 
-        if (result == null) 
+        if (result == null)
         {
             return NotFound();
         }
