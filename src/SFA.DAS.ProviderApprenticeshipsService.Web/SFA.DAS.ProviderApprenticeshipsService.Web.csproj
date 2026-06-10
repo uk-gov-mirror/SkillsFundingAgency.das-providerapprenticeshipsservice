@@ -10,7 +10,7 @@
 		<ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Infrastructure\SFA.DAS.ProviderApprenticeshipsService.Infrastructure.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Azure.Core" Version="1.44.1" />
+		<PackageReference Include="Azure.Core" Version="1.59.0" />
 		<PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
@@ -30,7 +30,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
 		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.1.2" />
 		<PackageReference Include="SFA.DAS.UnitOfWork.Mvc" Version="9.0.28" />
-		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.9" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
 		<PackageReference Include="Microsoft.identityModel.Protocols.OpenIdConnect" Version="8.1.2" />
 	</ItemGroup>
