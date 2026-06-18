@@ -80,8 +80,7 @@ public class Startup
         services.AddDataProtection(_configuration);
 
         services.AddLogging()
-            .AddTelemetryRegistration((IConfigurationRoot)_configuration)
-            .AddApplicationInsightsTelemetry();
+            .AddTelemetryRegistration((IConfigurationRoot)_configuration);
     }
 
     public void ConfigureContainer(UpdateableServiceProvider serviceProvider)

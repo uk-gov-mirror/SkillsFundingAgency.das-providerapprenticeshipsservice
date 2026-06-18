@@ -1,24 +1,25 @@
-# SFA.DAS.ProviderApprenticeshipsService
+## ⛔Never push sensitive information such as client id's, secrets or keys into repositories including in the README file⛔
+
+## Provider Apprenticeship Service
+<img src="https://avatars.githubusercontent.com/u/9841374?s=200&v=4" align="right" alt="UK Government logo">
+
+[![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status%2FAdd%20and%20Pay%2Fdas-providerapprenticeshipsservice?repoName=SkillsFundingAgency%2Fdas-providerapprenticeshipsservice&branchName=master)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=2183&repoName=SkillsFundingAgency%2Fdas-providerapprenticeshipsservice&branchName=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=SkillsFundingAgency_das-providerapprenticeshipsservice&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=SkillsFundingAgency_das-providerapprenticeshipsservice)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey.svg?longCache=true&style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
 ## Developer Setup
 
-#### Requirements
+### Pre-Requisites
 
-- Ensure you have the latest .pfx certificates for employer and provider in both **Local Machine** and **Current User** certificate stores (DevOps can assist)
-- Install [.NET 6.0] (https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-- Install [Visual Studio 2019](https://www.visualstudio.com/downloads/) with these workloads:
-    - ASP.NET and web development
-    - Azure development
-- Install [SQL Server 2017 Developer Edition](https://go.microsoft.com/fwlink/?linkid=853016)
-- Install [SQL Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms)
-- Install [Azure Storage Emulator](https://go.microsoft.com/fwlink/?linkid=717179&clcid=0x409) (Make sure you are on atleast v5.3)
-- Install [Azure Storage Explorer](http://storageexplorer.com/) 
-- Administrator Access
-
-#### Setup
-
-- Clone this repository
-- Open Visual Studio as an administrator
+You will need following on your local:
+* A clone of this repository
+* Visual studio or similar IDE 
+* .Net 10.0 SDK
+* Azurite or similar local storage emulator
+* SQL Database
+* Ensure you have the latest .pfx certificates for employer and provider in both **Local Machine** and **Current User** certificate stores (DevOps can assist)
+* Administrator Access
+* Open Visual Studio as an administrator
 
 #### Publish Database
 
@@ -114,43 +115,8 @@ confusion of different data sources.
 - [Recruit](https://github.com/SkillsFundingAgency/das-recruit)
 - [Provider Registrations](https://github.com/SkillsFundingAgency/das-provider-registrations)
 
-## Provider Apprenticeship Service
 
-Licensed under the [MIT license](https://github.com/SkillsFundingAgency/das-providerapprenticeshipsservice/blob/master/LICENSE)
 
-|               |               |
-| ------------- | ------------- |
-|![crest](https://assets.publishing.service.gov.uk/government/assets/crests/org_crest_27px-916806dcf065e7273830577de490d5c7c42f36ddec83e907efe62086785f24fb.png)|Provider Apprenticeship Service (PAS) Web|
-| Info | A service enabling the Apprenticeship Service to be managed from the Provider perspective. |
-| Build | [![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status/Add%20and%20Pay/das-providerapprenticeshipsservice?branchName=master)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=150&branchName=master) |
-| Web  | https://localhost:44347/ |
-
-|               |               |
-| ------------- | ------------- |
-|![crest](https://assets.publishing.service.gov.uk/government/assets/crests/org_crest_27px-916806dcf065e7273830577de490d5c7c42f36ddec83e907efe62086785f24fb.png)|PAS Account Internal API|
-| Info | An internal API giving access to user accounts and agreements for providers. |
-| Build | [![Build Status](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_apis/build/status/Add%20and%20Pay/das-providerapprenticeshipsservice?branchName=master)](https://sfa-gov-uk.visualstudio.com/Digital%20Apprenticeship%20Service/_build/latest?definitionId=150&branchName=master) |
-| Web  | https://localhost:44378/ |
-
-|               | <div style="width:500px"></div>              |
-| ------------- | ------------- |
-|![crest](https://assets.publishing.service.gov.uk/government/assets/crests/org_crest_27px-916806dcf065e7273830577de490d5c7c42f36ddec83e907efe62086785f24fb.png)| PAS Account Api Client |
-| Info  | .Net Framework client library for the internal Account API |
-| Build  | [![NuGet Badge](https://buildstats.info/nuget/SFA.DAS.PAS.Account.Api.Client)](https://www.nuget.org/packages/SFA.DAS.PAS.Account.Api.Client)  |
-
-|               | <div style="width:500px"></div>              |
-| ------------- | ------------- |
-|![crest](https://assets.publishing.service.gov.uk/government/assets/crests/org_crest_27px-916806dcf065e7273830577de490d5c7c42f36ddec83e907efe62086785f24fb.png)| PAS Account Api Client V2 |
-| Info  | .Net Standard client library for the internal Account API |
-| Build  | [![NuGet Badge](https://buildstats.info/nuget/SFA.DAS.PAS.Account.Api.ClientV2)](https://www.nuget.org/packages/SFA.DAS.PAS.Account.Api.ClientV2)  |
-
-|               | <div style="width:500px"></div>              |
-| ------------- | ------------- |
-|![crest](https://assets.publishing.service.gov.uk/government/assets/crests/org_crest_27px-916806dcf065e7273830577de490d5c7c42f36ddec83e907efe62086785f24fb.png)| PAS Account Api Types |
-| Info  | .Net Standard types library for client libraries |
-| Build  | [![NuGet Badge](https://buildstats.info/nuget/SFA.DAS.PAS.Account.Api.Types)](https://www.nuget.org/packages/SFA.DAS.PAS.Account.Api.Types)  |
-
-See [Support Site]() for EFSA developer details.
 
 
 

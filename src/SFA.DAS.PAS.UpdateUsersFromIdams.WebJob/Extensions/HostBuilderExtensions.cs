@@ -81,7 +81,7 @@ public static class HostBuilderExtensions
             });
 
             services.AddSingleton(new ChainedTokenCredential(
-                new ManagedIdentityCredential(),
+                new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
                 new AzureCliCredential())
             );
 

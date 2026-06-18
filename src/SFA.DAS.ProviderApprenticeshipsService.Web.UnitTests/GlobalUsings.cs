@@ -4,7 +4,7 @@ global using System.Linq;
 global using System.Security.Claims;
 global using System.Threading;
 global using System.Threading.Tasks;
-global using AutoFixture.NUnit3;
+global using AutoFixture.NUnit4;
 global using FluentAssertions;
 global using MediatR;
 global using Microsoft.AspNetCore.Html;

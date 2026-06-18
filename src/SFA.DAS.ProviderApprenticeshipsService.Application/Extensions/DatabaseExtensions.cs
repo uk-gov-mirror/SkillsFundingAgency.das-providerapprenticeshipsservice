@@ -16,17 +16,17 @@ public static class DatabaseExtensions
         {
             throw new ArgumentNullException(nameof(connectionString));
         }
-        
+
         var connectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
         var useManagedIdentity = !connectionStringBuilder.IntegratedSecurity && string.IsNullOrEmpty(connectionStringBuilder.UserID);
-        
+
         if (!useManagedIdentity)
         {
             return new SqlConnection(connectionString);
         }
 
         var azureServiceTokenProvider = new ChainedTokenCredential(
-            new ManagedIdentityCredential(),
+            new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
             new AzureCliCredential(),
             new VisualStudioCodeCredential(),
             new VisualStudioCredential());

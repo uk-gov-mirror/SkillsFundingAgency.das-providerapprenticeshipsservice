@@ -14,7 +14,7 @@ public static class DataRepositoryServiceRegistrations
         services.AddTransient<IProviderRepository, ProviderRepository>();
 
         services.AddSingleton(new ChainedTokenCredential(
-            new ManagedIdentityCredential(),
+            new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
             new AzureCliCredential())
         );
 
