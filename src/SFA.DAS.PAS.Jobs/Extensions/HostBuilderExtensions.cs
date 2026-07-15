@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using Azure.Core;
 using Azure.Identity;
@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
-using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.DfESignIn.Auth.Api.Client;
 using SFA.DAS.DfESignIn.Auth.Api.Helpers;
 using SFA.DAS.DfESignIn.Auth.Configuration;
@@ -32,27 +31,9 @@ using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Services;
 
 namespace SFA.DAS.PAS.Jobs.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class HostBuilderExtensions
 {
-    public static void AddConfiguration(this IConfigurationBuilder builder)
-    {
-        builder
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables();
-
-        var configuration = builder.Build();
-
-        builder.AddAzureTableStorage(options =>
-        {
-            options.ConfigurationKeys = [ConfigurationKeys.PasJobsConfiguration, ConfigurationKeys.DfESignInService];
-            options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
-            options.EnvironmentName = configuration["EnvironmentName"];
-            options.PreFixConfigurationKeys = false;
-        }).Build();
-    }
-
     public static IHostBuilder ConfigurePasServices(this IHostBuilder hostBuilder)
     {
         hostBuilder.ConfigureServices((context, services) =>

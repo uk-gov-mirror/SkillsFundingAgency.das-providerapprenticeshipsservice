@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Configurations;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 
 namespace SFA.DAS.PAS.Jobs.Configuration;
 
+[ExcludeFromCodeCoverage]
 public class PasJobsConfiguration : IBaseConfiguration
 {
     public string DatabaseConnectionString { get; set; }
