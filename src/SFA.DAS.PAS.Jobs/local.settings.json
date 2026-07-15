@@ -14,7 +14,7 @@
     "ConfigNames": "SFA.DAS.PAS.Jobs,SFA.DAS.Provider.DfeSignIn",
     "Version": "1.0",
     "EnvironmentName": "LOCAL",
-    "ImportProvidersJobSchedule": "0 0 20 * * 1-5",
+    "ImportProvidersJobSchedule": "0 0 0 * * *",
     "UpdateUsersFromDfESignInJobSchedule": "* */15 * * * *"
   }
 }
