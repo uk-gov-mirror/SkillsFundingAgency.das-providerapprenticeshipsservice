@@ -59,10 +59,8 @@ public static class HostBuilderExtensions
             services.Configure<DfEOidcConfiguration>(context.Configuration.GetSection($"{ConfigurationKeys.DfESignInService}:DfEOidcConfiguration_ProviderRoATP"));
 
             services.AddSingleton(cfg => cfg.GetService<IOptions<DfEOidcConfiguration>>().Value);
-            services.AddSingleton<IBaseConfiguration>(isp =>
-                isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>().Value);
-            services.AddSingleton(isp =>
-                isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>().Value.CommitmentNotification);
+            services.AddSingleton<IBaseConfiguration>(isp => isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>().Value);
+            services.AddSingleton(isp => isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>().Value.CommitmentNotification);
 
             services.AddHttpClient<IApiHelper, DfeSignInApiHelper>
                 (

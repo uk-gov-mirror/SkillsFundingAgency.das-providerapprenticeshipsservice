@@ -87,6 +87,11 @@ public class CommitmentsV2ApiClient : ApiClientBase, ICommitmentsV2ApiClient
 
     private string BaseUrl()
     {
+        if (string.IsNullOrWhiteSpace(_config.ApiBaseUrl))
+        {
+            throw new InvalidOperationException("Commitments API base URL is missing. Configure CommitmentsApiClientV2:ApiBaseUrl.");
+        }
+
         if (_config.ApiBaseUrl.EndsWith("/"))
         {
             return _config.ApiBaseUrl;

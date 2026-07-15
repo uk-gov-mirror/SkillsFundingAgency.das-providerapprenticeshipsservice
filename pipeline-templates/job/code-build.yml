@@ -51,6 +51,16 @@ jobs:
           arguments: -o $(build.artifactstagingdirectory)/publish/ProviderWebJob -c ${{ parameters.BuildConfiguration }} --no-restore --no-build
           modifyOutputPath: true
           zipAfterPublish: true
+      
+      - task: DotNetCoreCLI@2
+        displayName: Publish Provider Jobs
+        inputs:
+          command: publish
+          publishWebProjects: false 
+          projects: src/SFA.DAS.PAS.Jobs/SFA.DAS.PAS.Jobs.csproj
+          arguments: -o $(build.artifactstagingdirectory)/publish/ProviderJobs -c ${{ parameters.BuildConfiguration }} --no-build
+          modifyOutputPath: true
+          zipAfterPublish: true
 
       - task: DotNetCoreCLI@2
         displayName: Test Account.API.ClientV2

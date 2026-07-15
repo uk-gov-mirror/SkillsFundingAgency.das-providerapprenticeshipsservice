@@ -175,23 +175,24 @@
             }
         }
     },
-    "variables": {
-        "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
-        "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
-        "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
-        "uiAppServiceName": "[concat(variables('resourceNamePrefix'), 'ui-as')]",
-        "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
-        "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
-        "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
-        "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
-        "configNames": "SFA.DAS.ProviderApprenticeshipsService,SFA.DAS.Encoding,SFA.DAS.ProviderUrlHelper,SFA.DAS.Provider.DfeSignIn",
-        "configNamesApi": "SFA.DAS.PasAccountApi",
-        "routeTableId": {
-            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
-        },
-        "emptyObject": {},
-        "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
+  "variables": {
+    "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/das-platform-building-blocks/master/templates/",
+    "resourceNamePrefix": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
+    "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
+    "uiAppServiceName": "[concat(variables('resourceNamePrefix'), 'ui-as')]",
+    "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
+    "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
+    "functionAppName": "[concat(variables('resourceNamePrefix'), 'wkr-fa')]",
+    "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
+    "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
+    "configNames": "SFA.DAS.ProviderApprenticeshipsService,SFA.DAS.Encoding,SFA.DAS.ProviderUrlHelper,SFA.DAS.Provider.DfeSignIn",
+    "configNamesApi": "SFA.DAS.PasAccountApi",
+    "routeTableId": {
+      "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
     },
+    "emptyObject": {},
+    "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
+  },
     "resources": [
         {
             "apiVersion": "2021-04-01",
@@ -833,26 +834,30 @@
             }
         }
     ],
-    "outputs": {
-        "ApiAppServiceName": {
-            "type": "string",
-            "value": "[variables('apiAppServiceName')]"
-        },
-        "UiAppServiceName": {
-            "type": "string",
-            "value": "[variables('uiAppServiceName')]"
-        },
-        "WorkerAppServiceName": {
-            "type": "string",
-            "value": "[variables('workerAppServiceName')]"
-        },
-        "DatabaseName": {
-            "type": "string",
-            "value": "[variables('databaseName')]"
-        },
-        "ResourceGroupName": {
-            "type": "string",
-            "value": "[variables('resourceGroupName')]"
-        }
+  "outputs": {
+    "ApiAppServiceName": {
+      "type": "string",
+      "value": "[variables('apiAppServiceName')]"
+    },
+    "UiAppServiceName": {
+      "type": "string",
+      "value": "[variables('uiAppServiceName')]"
+    },
+    "WorkerAppServiceName": {
+      "type": "string",
+      "value": "[variables('workerAppServiceName')]"
+    },
+    "DatabaseName": {
+      "type": "string",
+      "value": "[variables('databaseName')]"
+    },
+    "ResourceGroupName": {
+      "type": "string",
+      "value": "[variables('resourceGroupName')]"
+    },
+    "FunctionAppName": {
+      "type": "string",
+      "value": "[variables('functionAppName')]"
     }
+  }
 }
