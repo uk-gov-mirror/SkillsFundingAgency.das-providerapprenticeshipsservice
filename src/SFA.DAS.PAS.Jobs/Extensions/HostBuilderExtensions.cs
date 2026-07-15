@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
@@ -42,14 +43,12 @@ public static class HostBuilderExtensions
             .AddEnvironmentVariables();
 
         var configuration = builder.Build();
-        var storageConnectionString = configuration.GetConfigValue("ConfigurationStorageConnectionString");
-        var environmentName = configuration.GetConfigValue("EnvironmentName");
 
         builder.AddAzureTableStorage(options =>
         {
-            options.ConfigurationKeys = [ConfigurationKeys.ProviderApprenticeshipsService, ConfigurationKeys.DfESignInService];
-            options.StorageConnectionString = storageConnectionString;
-            options.EnvironmentName = environmentName;
+            options.ConfigurationKeys = [ConfigurationKeys.PasJobsConfiguration, ConfigurationKeys.DfESignInService];
+            options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
+            options.EnvironmentName = configuration["EnvironmentName"];
             options.PreFixConfigurationKeys = false;
         }).Build();
     }
@@ -58,40 +57,27 @@ public static class HostBuilderExtensions
     {
         hostBuilder.ConfigureServices((context, services) =>
         {
-            services.Configure<ProviderApprenticeshipsServiceConfiguration>(c =>
-            {
-                // With PreFixConfigurationKeys = false, these values are often flattened at root.
-                context.Configuration.Bind(c);
-                if (string.IsNullOrWhiteSpace(c.DatabaseConnectionString))
-                {
-                    context.Configuration.GetSectionWithValuesFallback(ConfigurationKeys.ProviderApprenticeshipsService).Bind(c);
-                }
-            });
+            services.Configure<PasJobsConfiguration>(context.Configuration);
 
-            services.Configure<CommitmentsApiClientV2Configuration>(
-                c =>
-                {
-                    context.Configuration.GetSectionWithValuesFallback("CommitmentsApiClientV2").Bind(c);
-                    if (string.IsNullOrWhiteSpace(c.ApiBaseUrl))
-                    {
-                        context.Configuration.GetSectionWithValuesFallback(ConfigurationKeys.CommitmentsApiClientV2).Bind(c);
-                    }
-                });
+            services.AddSingleton<IBaseConfiguration>(isp => isp.GetService<IOptions<PasJobsConfiguration>>()!.Value);
 
-            services.Configure<DfEOidcConfiguration>(c =>
-            {
-                context.Configuration.GetSectionWithValuesFallback("DfEOidcConfiguration").Bind(c);
-                context.Configuration.GetSectionWithValuesFallback("DfEOidcConfiguration_ProviderRoATP").Bind(c);
-                context.Configuration.GetSectionWithValuesFallback($"{ConfigurationKeys.DfESignInService}:DfEOidcConfiguration").Bind(c);
-                context.Configuration.GetSectionWithValuesFallback($"{ConfigurationKeys.DfESignInService}:DfEOidcConfiguration_ProviderRoATP").Bind(c);
-            });
+            services.Configure<CommitmentsApiClientV2Configuration>(c => context.Configuration.GetSection(ConfigurationKeys.CommitmentsApiClientV2).Bind(c));
+
+            services.AddSingleton(cfg => cfg.GetService<IOptions<CommitmentsApiClientV2Configuration>>()!.Value);
+            services.AddHttpClient<ICommitmentsV2ApiClient, CommitmentsV2ApiClient>();
+
+            services.AddSingleton<TokenCredential>(new ChainedTokenCredential(
+                new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
+                new AzureCliCredential()));
+
+            services.AddTransient<IImportProviderService, ImportProviderService>();
+            services.AddTransient<IProviderRepository, ProviderRepository>();
+
+            services.Configure<DfEOidcConfiguration>(context.Configuration.GetSection("DfEOidcConfiguration"));
+            services.Configure<DfEOidcConfiguration>(context.Configuration.GetSection("DfEOidcConfiguration_ProviderRoATP"));
 
             services.AddSingleton(cfg => cfg.GetService<IOptions<DfEOidcConfiguration>>()!.Value);
-            services.AddSingleton(cfg => cfg.GetService<IOptions<CommitmentsApiClientV2Configuration>>()!.Value);
-            services.AddSingleton<IBaseConfiguration>(isp => isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>()!.Value);
-            services.AddSingleton(isp => isp.GetService<IOptions<ProviderApprenticeshipsServiceConfiguration>>()!.Value.CommitmentNotification);
-
-            services.AddHttpClient<ICommitmentsV2ApiClient, CommitmentsV2ApiClient>();
+            services.AddSingleton(isp => isp.GetService<IOptions<PasJobsConfiguration>>()!.Value.CommitmentNotification);
 
             services.AddHttpClient<IApiHelper, DfeSignInApiHelper>(options => options.Timeout = TimeSpan.FromMinutes(30))
                 .SetHandlerLifetime(TimeSpan.FromMinutes(10))
@@ -107,15 +93,9 @@ public static class HostBuilderExtensions
                 return new HttpClientWrapper(httpClient);
             });
 
-            services.AddSingleton<TokenCredential>(new ChainedTokenCredential(
-                new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
-                new AzureCliCredential()));
-
-            services.AddTransient<IIdamsEmailServiceWrapper, IdamsEmailServiceWrapper>();
-            services.AddTransient<IProviderRepository, ProviderRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<IImportProviderService, ImportProviderService>();
             services.AddTransient<IIdamsSyncService, IdamsSyncService>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IIdamsEmailServiceWrapper, IdamsEmailServiceWrapper>();
 
             services.AddLogging()
                 .AddTelemetryRegistration((IConfigurationRoot)context.Configuration)
@@ -130,22 +110,8 @@ public static class HostBuilderExtensions
     {
         hostBuilder.ConfigureLogging((context, loggingBuilder) =>
         {
-            var defaultLogLevel = context.Configuration.GetConfigValue("Logging:LogLevel:Default");
-            if (Enum.TryParse(defaultLogLevel, true, out LogLevel parsedDefaultLogLevel))
-            {
-                loggingBuilder.SetMinimumLevel(parsedDefaultLogLevel);
-            }
-
-            var microsoftLogLevel = context.Configuration.GetConfigValue("Logging:LogLevel:Microsoft");
-            if (Enum.TryParse(microsoftLogLevel, true, out LogLevel parsedMicrosoftLogLevel))
-            {
-                loggingBuilder.AddFilter("Microsoft", parsedMicrosoftLogLevel);
-            }
-            else
-            {
-                loggingBuilder.AddFilter("Microsoft", LogLevel.Information);
-            }
-
+            loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
+            loggingBuilder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
             loggingBuilder.AddConsole();
         });
 
@@ -163,21 +129,5 @@ public static class HostBuilderExtensions
             .HandleTransientHttpError()
             .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-    }
-
-    public static string GetConfigValue(this IConfiguration configuration, string key)
-    {
-        return configuration[key] ?? configuration[$"Values:{key}"];
-    }
-
-    public static IConfigurationSection GetSectionWithValuesFallback(this IConfiguration configuration, string sectionKey)
-    {
-        var section = configuration.GetSection(sectionKey);
-        if (section.Exists())
-        {
-            return section;
-        }
-
-        return configuration.GetSection($"Values:{sectionKey}");
     }
 }

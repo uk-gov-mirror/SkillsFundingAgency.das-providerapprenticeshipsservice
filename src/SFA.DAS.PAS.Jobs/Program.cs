@@ -21,20 +21,7 @@ public class Program
             .Build();
 
         var logger = host.Services.GetService<ILogger<Program>>();
-
         logger.LogInformation("SFA.DAS.PAS.Jobs is starting up ...");
-        //var configuration = host.Services.GetService<IConfiguration>();
-
-        //var databaseConnectionString = configuration?.GetConfigValue("DatabaseConnectionString")
-        //                              ?? configuration?.GetConfigValue("SFA.DAS.ProviderApprenticeshipsService:DatabaseConnectionString");
-        //var commitmentsApiBaseUrl = configuration?.GetConfigValue("CommitmentsApiClientV2:ApiBaseUrl")
-        //                            ?? configuration?.GetConfigValue("SFA.DAS.ProviderApprenticeshipsService:CommitmentsApiClientV2:ApiBaseUrl");
-        //logger.LogInformation(
-        //    "Startup config check: DatabaseConnectionString configured = {IsConfigured}",
-        //    !string.IsNullOrWhiteSpace(databaseConnectionString));
-        //logger.LogInformation(
-        //    "Startup config check: CommitmentsApiClientV2 ApiBaseUrl configured = {IsConfigured}",
-        //    !string.IsNullOrWhiteSpace(commitmentsApiBaseUrl));
 
         await host.RunAsync();
     }

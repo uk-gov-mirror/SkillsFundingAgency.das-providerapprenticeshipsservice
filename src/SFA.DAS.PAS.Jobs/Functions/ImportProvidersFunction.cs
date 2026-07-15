@@ -13,7 +13,7 @@ public class ImportProvidersFunction(IImportProviderService importProviderServic
     private readonly ILogger<ImportProvidersFunction> _logger = logger;
 
     [Function(nameof(ImportProvidersFunction))]
-    public async Task Run([TimerTrigger("%ImportProvidersJobSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("%ImportProvidersJobSchedule%", RunOnStartup = true)] TimerInfo timerInfo)
     {
         try
         {

@@ -13,7 +13,7 @@ public class UpdateUsersFromDfeSignInFunction(IIdamsSyncService idamsSyncService
     private readonly ILogger<UpdateUsersFromDfeSignInFunction> _logger = logger;
 
     [Function(nameof(UpdateUsersFromDfeSignInFunction))]
-    public async Task Run([TimerTrigger("%UpdateUsersFromDfESignInJobSchedule%", RunOnStartup = true)] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("%UpdateUsersFromDfESignInJobSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
     {
         _logger.LogInformation("UpdateUsersFromDfESignIn job started");
         try
