@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace SFA.DAS.PAS.Jobs.Configuration;
 
+[ExcludeFromCodeCoverage]
 public static class ConfigurationKeys
 {
     public const string PasJobsConfiguration = "SFA.DAS.PAS.Jobs";

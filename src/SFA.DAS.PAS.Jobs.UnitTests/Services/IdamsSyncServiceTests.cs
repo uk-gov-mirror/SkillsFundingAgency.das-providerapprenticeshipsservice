@@ -27,7 +27,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
-        await fixture.Sut.SyncUsers();
+        await fixture._sut.SyncUsers();
 
         fixture.VerifyItGetsTheNextProvider();
     }
@@ -37,7 +37,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
-        await fixture.Sut.SyncUsers();
+        await fixture._sut.SyncUsers();
 
         fixture.VerifyWeCallIdamsServiceForThisProvider();
     }
@@ -47,7 +47,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
-        await fixture.Sut.SyncUsers();
+        await fixture._sut.SyncUsers();
 
         fixture.VerifyIdamsUsersAreSyncedInUserRepository();
     }
@@ -57,7 +57,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
-        await fixture.Sut.SyncUsers();
+        await fixture._sut.SyncUsers();
 
         fixture.VerifyItMarksProviderAsIdamsUpdated();
     }
@@ -67,7 +67,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowException();
 
-        Assert.ThrowsAsync<ApplicationException>(() => fixture.Sut.SyncUsers());
+        Assert.ThrowsAsync<ApplicationException>(() => fixture._sut.SyncUsers());
     }
 
     [Test]
@@ -75,7 +75,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowException();
 
-        Assert.ThrowsAsync<ApplicationException>(() => fixture.Sut.SyncUsers());
+        Assert.ThrowsAsync<ApplicationException>(() => fixture._sut.SyncUsers());
 
         fixture.VerifyItMarksProviderAsIdamsUpdated();
     }
@@ -85,7 +85,7 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture().WithNoProviders();
 
-        await fixture.Sut.SyncUsers();
+        await fixture._sut.SyncUsers();
 
         fixture.VerifyIdamsServiceIsNotCalled();
     }
@@ -95,8 +95,29 @@ public class IdamsSyncServiceTests
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowHttpRequestException();
 
-        Assert.DoesNotThrowAsync(() => fixture.Sut.SyncUsers());
+        Assert.DoesNotThrowAsync(() => fixture._sut.SyncUsers());
 
+        fixture.VerifyItMarksProviderAsIdamsUpdated();
+    }
+
+    [Test]
+    public void SyncUsers_WhenIdamsThrowsNon404HttpException_RethrowsAndMarksProviderAsUpdated()
+    {
+        var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowHttpRequestException(HttpStatusCode.InternalServerError);
+
+        Assert.ThrowsAsync<CustomHttpRequestException>(() => fixture._sut.SyncUsers());
+
+        fixture.VerifyItMarksProviderAsIdamsUpdated();
+    }
+
+    [Test]
+    public async Task SyncUsers_WhenIdamsReturnsNull_SyncsEmptyUserList()
+    {
+        var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToReturnNull();
+
+        await fixture._sut.SyncUsers();
+
+        fixture.VerifyIdamsUsersAreSyncedWithEmptyList();
         fixture.VerifyItMarksProviderAsIdamsUpdated();
     }
 
@@ -108,6 +129,7 @@ public class IdamsSyncServiceTests
         private readonly DfeUser _normalUsers;
         private readonly Mock<IApiHelper> _apiHelper;
         private readonly DfEOidcConfiguration _configuration;
+        public IdamsSyncService _sut { get; }
 
         public IdamsSyncServiceTestFixture()
         {
@@ -130,11 +152,10 @@ public class IdamsSyncServiceTests
                 APIServiceUrl = "https://some.test.url"
             };
 
-            Sut = new IdamsSyncService(_userRepository.Object,
+            _sut = new IdamsSyncService(_userRepository.Object,
                 _providerRepository.Object, Mock.Of<ILogger<IdamsSyncService>>(), _apiHelper.Object, _configuration);
         }
 
-        public IdamsSyncService Sut { get; }
 
         public IdamsSyncServiceTestFixture SetupIdamsToThrowException()
         {
@@ -145,12 +166,18 @@ public class IdamsSyncServiceTests
             return this;
         }
 
-        public IdamsSyncServiceTestFixture SetupIdamsToThrowHttpRequestException()
+        public IdamsSyncServiceTestFixture SetupIdamsToThrowHttpRequestException(HttpStatusCode statusCode = HttpStatusCode.NotFound)
         {
             _apiHelper
                 .Setup(x => x.Get<DfeUser>(It.IsAny<string>()))
-                .Throws(new CustomHttpRequestException(HttpStatusCode.NotFound, null));
+                .Throws(new CustomHttpRequestException(statusCode, null));
 
+            return this;
+        }
+
+        public IdamsSyncServiceTestFixture SetupIdamsToReturnNull()
+        {
+            _apiHelper.Setup(x => x.Get<DfeUser>(It.IsAny<string>())).ReturnsAsync((DfeUser)null);
             return this;
         }
 
@@ -174,6 +201,12 @@ public class IdamsSyncServiceTests
         {
             _userRepository.Verify(x => x.SyncIdamsUsers(It.IsAny<long>(),
                 It.Is<List<IdamsUser>>(p => p.Count(z => z.UserType == UserType.NormalUser) == _normalUsers.Users.Count)));
+        }
+
+        public void VerifyIdamsUsersAreSyncedWithEmptyList()
+        {
+            _userRepository.Verify(x => x.SyncIdamsUsers(_providerResponse.Ukprn,
+                It.Is<List<IdamsUser>>(p => p.Count == 0)), Times.Once);
         }
 
         public void VerifyItMarksProviderAsIdamsUpdated()
