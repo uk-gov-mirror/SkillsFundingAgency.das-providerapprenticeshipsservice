@@ -1,28 +1,36 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.PAS.Jobs.Extensions;
+using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Extensions;
 
-namespace SFA.DAS.PAS.Jobs;
-
-[ExcludeFromCodeCoverage]
-public class Program
-{
-    public static async Task Main()
+var host = new HostBuilder()
+    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureAppConfiguration(builder => builder.AddConfiguration())
+    .ConfigureServices((context, services) =>
     {
-        using var host = new HostBuilder()
-            .ConfigureFunctionsWorkerDefaults()
-            .ConfigureAppConfiguration(builder => builder.AddConfiguration())
-            .ConfigureDasLogging()
-            .ConfigurePasServices()
-            .Build();
+        services
+            .AddApplicationInsightsTelemetryWorkerService()
+            .ConfigureFunctionsApplicationInsights()
+            .AddTelemetryRegistration((IConfigurationRoot)context.Configuration)
+            .AddServiceRegistrations(context.Configuration);
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.Services.Configure<LoggerFilterOptions>(options =>
+        {
+            var defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
 
-        var logger = host.Services.GetService<ILogger<Program>>();
-        logger.LogInformation("SFA.DAS.PAS.Jobs is starting up ...");
+            if (defaultRule is not null)
+            {
+                options.Rules.Remove(defaultRule);
+            }
+        });
+    })
+    .Build();
 
-        await host.RunAsync();
-    }
-}
+await host.RunAsync();

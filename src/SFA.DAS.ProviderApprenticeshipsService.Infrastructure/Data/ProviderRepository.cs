@@ -13,7 +13,7 @@ namespace SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 
 public class ProviderRepository : BaseRepository<ProviderRepository>, IProviderRepository
 {
-    public ProviderRepository(IBaseConfiguration configuration, ILogger<ProviderRepository> logger)
+    public ProviderRepository(IDatabaseConfiguration configuration, ILogger<ProviderRepository> logger)
         : base(configuration.DatabaseConnectionString, logger) { }
 
     public async Task ImportProviders(CommitmentsV2.Api.Types.Responses.Provider[] providers)
