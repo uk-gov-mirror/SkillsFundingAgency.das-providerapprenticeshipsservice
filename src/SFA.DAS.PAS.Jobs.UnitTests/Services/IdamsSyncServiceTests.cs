@@ -23,47 +23,53 @@ namespace SFA.DAS.PAS.Jobs.UnitTests.Services;
 public class IdamsSyncServiceTests
 {
     [Test]
-    public async Task SyncUsers_GetsNextProviderToProcess()
+    public async Task WhenSyncUsers_AndProviderExists_ThenGetsNextProviderToProcess()
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyItGetsTheNextProvider();
+        fixture._providerRepository.Verify(x => x.GetNextProviderForIdamsUpdate(), Times.Once);
     }
 
     [Test]
-    public async Task SyncUsers_CallsIdamsServiceForProvider()
+    public async Task WhenSyncUsers_AndProviderExists_ThenCallsIdamsServiceForProvider()
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyWeCallIdamsServiceForThisProvider();
+        fixture._apiHelper.Verify(
+            x => x.Get<DfeUser>($"{fixture._configuration.APIServiceUrl}/organisations/{fixture._provider.Ukprn}/users"),
+            Times.Once);
     }
 
     [Test]
-    public async Task SyncUsers_WhenUsersReturned_SyncsUsersWithLocalRepository()
+    public async Task WhenSyncUsers_AndUsersReturned_ThenSyncsUsersWithLocalRepository()
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyIdamsUsersAreSyncedInUserRepository();
+        fixture._userRepository.Verify(
+            x => x.SyncIdamsUsers(
+                It.IsAny<long>(),
+                It.Is<List<IdamsUser>>(p => p.Count(z => z.UserType == UserType.NormalUser) == fixture._users.Users.Count)),
+            Times.Once);
     }
 
     [Test]
-    public async Task SyncUsers_WhenProviderProcessed_MarksProviderAsUpdated()
+    public async Task WhenSyncUsers_AndProviderProcessed_ThenMarksProviderAsUpdated()
     {
         var fixture = new IdamsSyncServiceTestFixture();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyItMarksProviderAsIdamsUpdated();
+        fixture._providerRepository.Verify(x => x.MarkProviderIdamsUpdated(fixture._provider.Ukprn), Times.Once);
     }
 
     [Test]
-    public void SyncUsers_WhenIdamsThrowsException_RethrowsException()
+    public void WhenSyncUsers_AndIdamsThrowsException_ThenRethrowsException()
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowException();
 
@@ -71,91 +77,96 @@ public class IdamsSyncServiceTests
     }
 
     [Test]
-    public void SyncUsers_WhenIdamsThrowsException_MarksProviderAsUpdated()
+    public void WhenSyncUsers_AndIdamsThrowsException_ThenMarksProviderAsUpdated()
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowException();
 
         Assert.ThrowsAsync<ApplicationException>(() => fixture._sut.SyncUsers());
 
-        fixture.VerifyItMarksProviderAsIdamsUpdated();
+        fixture._providerRepository.Verify(x => x.MarkProviderIdamsUpdated(fixture._provider.Ukprn), Times.Once);
     }
 
     [Test]
-    public async Task SyncUsers_WhenNoProvidersFound_DoesNotCallIdamsService()
+    public async Task WhenSyncUsers_AndNoProvidersFound_ThenDoesNotCallIdamsService()
     {
         var fixture = new IdamsSyncServiceTestFixture().WithNoProviders();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyIdamsServiceIsNotCalled();
+        fixture._apiHelper.Verify(x => x.Get<DfeUser>(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
-    public void SyncUsers_WhenIdamsThrowsHttp404Exception_MarksProviderAsUpdatedButDoesNotThrow()
+    public void WhenSyncUsers_AndIdamsThrowsHttp404Exception_ThenMarksProviderAsUpdatedButDoesNotThrow()
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowHttpRequestException();
 
         Assert.DoesNotThrowAsync(() => fixture._sut.SyncUsers());
 
-        fixture.VerifyItMarksProviderAsIdamsUpdated();
+        fixture._providerRepository.Verify(x => x.MarkProviderIdamsUpdated(fixture._provider.Ukprn), Times.Once);
     }
 
     [Test]
-    public void SyncUsers_WhenIdamsThrowsNon404HttpException_RethrowsAndMarksProviderAsUpdated()
+    public void WhenSyncUsers_AndIdamsThrowsNon404HttpException_ThenRethrowsAndMarksProviderAsUpdated()
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToThrowHttpRequestException(HttpStatusCode.InternalServerError);
 
         Assert.ThrowsAsync<CustomHttpRequestException>(() => fixture._sut.SyncUsers());
 
-        fixture.VerifyItMarksProviderAsIdamsUpdated();
+        fixture._providerRepository.Verify(x => x.MarkProviderIdamsUpdated(fixture._provider.Ukprn), Times.Once);
     }
 
     [Test]
-    public async Task SyncUsers_WhenIdamsReturnsNull_SyncsEmptyUserList()
+    public async Task WhenSyncUsers_AndIdamsReturnsNull_ThenSyncsEmptyUserList()
     {
         var fixture = new IdamsSyncServiceTestFixture().SetupIdamsToReturnNull();
 
         await fixture._sut.SyncUsers();
 
-        fixture.VerifyIdamsUsersAreSyncedWithEmptyList();
-        fixture.VerifyItMarksProviderAsIdamsUpdated();
+        fixture._userRepository.Verify(
+            x => x.SyncIdamsUsers(fixture._provider.Ukprn, It.Is<List<IdamsUser>>(p => p.Count == 0)),
+            Times.Once);
+        fixture._providerRepository.Verify(x => x.MarkProviderIdamsUpdated(fixture._provider.Ukprn), Times.Once);
     }
 
     private class IdamsSyncServiceTestFixture
     {
-        private readonly Mock<IUserRepository> _userRepository;
-        private readonly Mock<IProviderRepository> _providerRepository;
-        private readonly Provider _providerResponse;
-        private readonly DfeUser _normalUsers;
-        private readonly Mock<IApiHelper> _apiHelper;
-        private readonly DfEOidcConfiguration _configuration;
         public IdamsSyncService _sut { get; }
+        public Mock<IUserRepository> _userRepository { get; }
+        public Mock<IProviderRepository> _providerRepository { get; }
+        public Mock<IApiHelper> _apiHelper { get; }
+        public Provider _provider { get; }
+        public DfeUser _users { get; }
+        public DfEOidcConfiguration _configuration { get; }
 
         public IdamsSyncServiceTestFixture()
         {
             var autoFixture = new Fixture();
-            _providerResponse = autoFixture.Create<Provider>();
+            _provider = autoFixture.Create<Provider>();
 
             var users = autoFixture.Build<User>().With(c => c.UserStatus, 1).CreateMany().ToList();
-
-            _normalUsers = autoFixture.Build<DfeUser>().With(c => c.Users, users).Create();
+            _users = autoFixture.Build<DfeUser>().With(c => c.Users, users).Create();
 
             _providerRepository = new Mock<IProviderRepository>();
-            _providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(_providerResponse);
+            _providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(_provider);
+
             _userRepository = new Mock<IUserRepository>();
 
             _apiHelper = new Mock<IApiHelper>();
-            _apiHelper.Setup(x => x.Get<DfeUser>(It.IsAny<string>())).ReturnsAsync(_normalUsers);
+            _apiHelper.Setup(x => x.Get<DfeUser>(It.IsAny<string>())).ReturnsAsync(_users);
 
             _configuration = new DfEOidcConfiguration
             {
                 APIServiceUrl = "https://some.test.url"
             };
 
-            _sut = new IdamsSyncService(_userRepository.Object,
-                _providerRepository.Object, Mock.Of<ILogger<IdamsSyncService>>(), _apiHelper.Object, _configuration);
+            _sut = new IdamsSyncService(
+                _userRepository.Object,
+                _providerRepository.Object,
+                Mock.Of<ILogger<IdamsSyncService>>(),
+                _apiHelper.Object,
+                _configuration);
         }
-
 
         public IdamsSyncServiceTestFixture SetupIdamsToThrowException()
         {
@@ -185,38 +196,6 @@ public class IdamsSyncServiceTests
         {
             _providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync((Provider)null);
             return this;
-        }
-
-        public void VerifyItGetsTheNextProvider()
-        {
-            _providerRepository.Verify(x => x.GetNextProviderForIdamsUpdate());
-        }
-
-        public void VerifyWeCallIdamsServiceForThisProvider()
-        {
-            _apiHelper.Verify(x => x.Get<DfeUser>($"{_configuration.APIServiceUrl}/organisations/{_providerResponse.Ukprn}/users"), Times.Once);
-        }
-
-        public void VerifyIdamsUsersAreSyncedInUserRepository()
-        {
-            _userRepository.Verify(x => x.SyncIdamsUsers(It.IsAny<long>(),
-                It.Is<List<IdamsUser>>(p => p.Count(z => z.UserType == UserType.NormalUser) == _normalUsers.Users.Count)));
-        }
-
-        public void VerifyIdamsUsersAreSyncedWithEmptyList()
-        {
-            _userRepository.Verify(x => x.SyncIdamsUsers(_providerResponse.Ukprn,
-                It.Is<List<IdamsUser>>(p => p.Count == 0)), Times.Once);
-        }
-
-        public void VerifyItMarksProviderAsIdamsUpdated()
-        {
-            _providerRepository.Verify(x => x.MarkProviderIdamsUpdated(_providerResponse.Ukprn));
-        }
-
-        public void VerifyIdamsServiceIsNotCalled()
-        {
-            _apiHelper.Verify(x => x.Get<DfeUser>(It.IsAny<string>()), Times.Never);
         }
     }
 }

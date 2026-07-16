@@ -15,19 +15,19 @@ namespace SFA.DAS.PAS.Jobs.UnitTests.Services;
 public class ImportProviderServiceTests
 {
     [Test]
-    public async Task Import_ImportsProvidersInBatches_CallsRepositoryForEachBatch()
+    public async Task WhenImport_AndProvidersReturnedInBatches_ThenCallsRepositoryForEachBatch()
     {
         var fixture = new ImportProviderServiceTestFixture();
 
-        await fixture.Import();
+        await fixture._sut.Import();
 
-        fixture.VerifyImportProviderRepositoryCalled();
+        fixture._providerRepository.Verify(x => x.ImportProviders(It.IsAny<Provider[]>()), Times.Exactly(2));
     }
 
     private class ImportProviderServiceTestFixture
     {
-        private readonly ImportProviderService _sut;
-        private readonly Mock<IProviderRepository> _importProviderRepository;
+        public ImportProviderService _sut { get; }
+        public Mock<IProviderRepository> _providerRepository { get; }
 
         public ImportProviderServiceTestFixture()
         {
@@ -40,20 +40,13 @@ public class ImportProviderServiceTests
             var commitmentsV2ApiClient = new Mock<ICommitmentsV2ApiClient>();
             commitmentsV2ApiClient.Setup(x => x.GetProviders()).ReturnsAsync(response);
 
-            _importProviderRepository = new Mock<IProviderRepository>();
-            _importProviderRepository.Setup(x => x.ImportProviders(It.IsAny<Provider[]>()));
+            _providerRepository = new Mock<IProviderRepository>();
+            _providerRepository.Setup(x => x.ImportProviders(It.IsAny<Provider[]>()));
 
-            _sut = new ImportProviderService(commitmentsV2ApiClient.Object, _importProviderRepository.Object, Mock.Of<ILogger<ImportProviderService>>());
-        }
-
-        public Task Import()
-        {
-            return _sut.Import();
-        }
-
-        public void VerifyImportProviderRepositoryCalled()
-        {
-            _importProviderRepository.Verify(x => x.ImportProviders(It.IsAny<Provider[]>()), Times.Exactly(2));
+            _sut = new ImportProviderService(
+                commitmentsV2ApiClient.Object,
+                _providerRepository.Object,
+                Mock.Of<ILogger<ImportProviderService>>());
         }
     }
 }

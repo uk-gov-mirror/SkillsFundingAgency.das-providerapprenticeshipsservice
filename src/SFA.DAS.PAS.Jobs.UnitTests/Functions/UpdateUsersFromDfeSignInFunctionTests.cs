@@ -23,7 +23,7 @@ public class UpdateUsersFromDfeSignInFunctionTests
     }
 
     [Test]
-    public async Task Run_CallsIdamsSyncServiceOnce()
+    public async Task WhenRun_AndSyncSucceeds_ThenCallsIdamsSyncServiceOnce()
     {
         await _sut.Run(null);
 
@@ -31,7 +31,7 @@ public class UpdateUsersFromDfeSignInFunctionTests
     }
 
     [Test]
-    public async Task Run_WhenSyncUsersThrowsException_RethrowsError()
+    public async Task WhenRun_AndSyncUsersThrowsException_ThenRethrowsError()
     {
         _updateUsersService.Setup(x => x.SyncUsers())
             .ThrowsAsync(new ApplicationException("Inner exception"));
@@ -42,7 +42,7 @@ public class UpdateUsersFromDfeSignInFunctionTests
     }
 
     [Test]
-    public async Task Run_WhenSyncUsersThrowsAggregateException_DoesNotRethrowError()
+    public async Task WhenRun_AndSyncUsersThrowsAggregateException_ThenDoesNotRethrowError()
     {
         _updateUsersService.Setup(x => x.SyncUsers())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));

@@ -23,7 +23,7 @@ public class ImportProvidersFunctionTests
     }
 
     [Test]
-    public async Task Run_CallsImportProviderServiceOnce()
+    public async Task WhenRun_AndImportSucceeds_ThenCallsImportProviderServiceOnce()
     {
         await _sut.Run(null);
 
@@ -31,7 +31,7 @@ public class ImportProvidersFunctionTests
     }
 
     [Test]
-    public async Task Run_WhenImportThrowsException_RethrowsError()
+    public async Task WhenRun_AndImportThrowsException_ThenRethrowsError()
     {
         _importProvidersService.Setup(x => x.Import())
             .ThrowsAsync(new ApplicationException("Inner exception"));
@@ -42,7 +42,7 @@ public class ImportProvidersFunctionTests
     }
 
     [Test]
-    public async Task Run_WhenImportThrowsAggregateException_DoesNotRethrowError()
+    public async Task WhenRun_AndImportThrowsAggregateException_ThenDoesNotRethrowError()
     {
         _importProvidersService.Setup(x => x.Import())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));
