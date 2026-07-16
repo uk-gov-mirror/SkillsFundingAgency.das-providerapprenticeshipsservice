@@ -1,54 +1,50 @@
 using System;
 using System.Threading.Tasks;
+using AutoFixture.NUnit4;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.PAS.Jobs.Functions;
 using SFA.DAS.PAS.Jobs.Services;
+using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.PAS.Jobs.UnitTests.Functions;
 
-[TestFixture]
 public class UpdateUsersFromDfeSignInFunctionTests
 {
-    private UpdateUsersFromDfeSignInFunction _sut;
-    private Mock<IIdamsSyncService> _updateUsersService;
-
-    [SetUp]
-    public void Before_Each_Test()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndSyncSucceeds_ThenCallsIdamsSyncServiceOnce(
+        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+        [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
-        _updateUsersService = new Mock<IIdamsSyncService>();
-        _sut = new UpdateUsersFromDfeSignInFunction(_updateUsersService.Object, Mock.Of<ILogger<UpdateUsersFromDfeSignInFunction>>());
+        await sut.Run(null);
+
+        idamsSyncService.Verify(x => x.SyncUsers(), Times.Once);
     }
 
-    [Test]
-    public async Task WhenRun_AndSyncSucceeds_ThenCallsIdamsSyncServiceOnce()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndSyncUsersThrowsException_ThenRethrowsError(
+        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+        [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
-        await _sut.Run(null);
-
-        _updateUsersService.Verify(x => x.SyncUsers(), Times.Once);
-    }
-
-    [Test]
-    public async Task WhenRun_AndSyncUsersThrowsException_ThenRethrowsError()
-    {
-        _updateUsersService.Setup(x => x.SyncUsers())
+        idamsSyncService.Setup(x => x.SyncUsers())
             .ThrowsAsync(new ApplicationException("Inner exception"));
 
-        var act = async () => await _sut.Run(null);
+        var act = async () => await sut.Run(null);
 
         await act.Should().ThrowAsync<ApplicationException>().WithMessage("Inner exception");
     }
 
-    [Test]
-    public async Task WhenRun_AndSyncUsersThrowsAggregateException_ThenDoesNotRethrowError()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndSyncUsersThrowsAggregateException_ThenDoesNotRethrowError(
+        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+        [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
-        _updateUsersService.Setup(x => x.SyncUsers())
+        idamsSyncService.Setup(x => x.SyncUsers())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));
 
-        await _sut.Run(null);
+        await sut.Run(null);
 
-        _updateUsersService.Verify(x => x.SyncUsers(), Times.Once);
+        idamsSyncService.Verify(x => x.SyncUsers(), Times.Once);
     }
 }

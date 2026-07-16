@@ -1,54 +1,50 @@
 using System;
 using System.Threading.Tasks;
+using AutoFixture.NUnit4;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.PAS.Jobs.Functions;
 using SFA.DAS.PAS.Jobs.Services;
+using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.PAS.Jobs.UnitTests.Functions;
 
-[TestFixture]
 public class ImportProvidersFunctionTests
 {
-    private ImportProvidersFunction _sut;
-    private Mock<IImportProviderService> _importProvidersService;
-
-    [SetUp]
-    public void Before_Each_Test()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndImportSucceeds_ThenCallsImportProviderServiceOnce(
+        [Frozen] Mock<IImportProviderService> importProviderService,
+        [Greedy] ImportProvidersFunction sut)
     {
-        _importProvidersService = new Mock<IImportProviderService>();
-        _sut = new ImportProvidersFunction(_importProvidersService.Object, Mock.Of<ILogger<ImportProvidersFunction>>());
+        await sut.Run(null);
+
+        importProviderService.Verify(x => x.Import(), Times.Once);
     }
 
-    [Test]
-    public async Task WhenRun_AndImportSucceeds_ThenCallsImportProviderServiceOnce()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndImportThrowsException_ThenRethrowsError(
+        [Frozen] Mock<IImportProviderService> importProviderService,
+        [Greedy] ImportProvidersFunction sut)
     {
-        await _sut.Run(null);
-
-        _importProvidersService.Verify(x => x.Import(), Times.Once);
-    }
-
-    [Test]
-    public async Task WhenRun_AndImportThrowsException_ThenRethrowsError()
-    {
-        _importProvidersService.Setup(x => x.Import())
+        importProviderService.Setup(x => x.Import())
             .ThrowsAsync(new ApplicationException("Inner exception"));
 
-        var act = async () => await _sut.Run(null);
+        var act = async () => await sut.Run(null);
 
         await act.Should().ThrowAsync<ApplicationException>().WithMessage("Inner exception");
     }
 
-    [Test]
-    public async Task WhenRun_AndImportThrowsAggregateException_ThenDoesNotRethrowError()
+    [Test, MoqAutoData]
+    public async Task WhenRun_AndImportThrowsAggregateException_ThenDoesNotRethrowError(
+        [Frozen] Mock<IImportProviderService> importProviderService,
+        [Greedy] ImportProvidersFunction sut)
     {
-        _importProvidersService.Setup(x => x.Import())
+        importProviderService.Setup(x => x.Import())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));
 
-        await _sut.Run(null);
+        await sut.Run(null);
 
-        _importProvidersService.Verify(x => x.Import(), Times.Once);
+        importProviderService.Verify(x => x.Import(), Times.Once);
     }
 }
