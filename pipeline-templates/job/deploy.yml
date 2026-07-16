@@ -37,6 +37,7 @@ jobs:
               loggingRedisConnectionString: $(TLSLoggingRedisConnectionString)
               loggingRedisKey: $(LoggingRedisKey)
               redisSessionProviderConnectionString: $(DefaultSessionRedisConnectionString)
+              sharedStorageAccountConnectionString: $(SharedStorageAccountConnectionString)
         - template: azure-pipelines-templates/deploy/step/generate-config.yml@das-platform-building-blocks
           parameters:
             EnvironmentName: $(EnvironmentName)
@@ -59,6 +60,12 @@ jobs:
           parameters:
             ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
             ResourceName: $(UiAppServiceName)
+            Tenant: $(Tenant)
+            IsMultiRepoCheckout: true
+        - template: azure-pipelines-templates/deploy/step/app-role-assignments.yml@das-platform-building-blocks
+          parameters:
+            ServiceConnection: ${{ parameters.AppRoleAssignmentsServiceConnection }}
+            ResourceName: $(FunctionAppName)
             Tenant: $(Tenant)
             IsMultiRepoCheckout: true
         - template: azure-pipelines-templates/deploy/step/sql-dacpac-deploy.yml@das-platform-building-blocks
