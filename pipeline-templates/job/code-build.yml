@@ -16,9 +16,8 @@ jobs:
         parameters:
           SonarCloudProjectKey: SkillsFundingAgency_das-providerapprenticeshipsservice
           UnitTestProjects: |
-            '**/bin/Release/*UnitTests.dll'
-            '**/bin/Release/*/*UnitTests.dll'
-            '!**/*ClientV2.UnitTests.dll'
+            **/*UnitTests.csproj
+            !**/*ClientV2.UnitTests.csproj
           RunAcceptanceTests: false
           ContinueOnVulnerablePackageScanError: true
 
@@ -58,7 +57,7 @@ jobs:
           command: publish
           publishWebProjects: false 
           projects: src/SFA.DAS.PAS.Jobs/SFA.DAS.PAS.Jobs.csproj
-          arguments: -o $(build.artifactstagingdirectory)/publish/ProviderJobs -c Release --no-build
+          arguments: -o $(build.artifactstagingdirectory)/publish/ProviderJobs -c ${{ parameters.BuildConfiguration }} --no-restore --no-build
           modifyOutputPath: true
           zipAfterPublish: true
 
