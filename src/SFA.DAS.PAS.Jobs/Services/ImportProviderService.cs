@@ -7,18 +7,11 @@ using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Services;
 
 namespace SFA.DAS.PAS.Jobs.Services;
 
-public class ImportProviderService : IImportProviderService
+public class ImportProviderService(ICommitmentsV2ApiClient commitmentsV2ApiClient, IProviderRepository providerRepository, ILogger<ImportProviderService> logger) : IImportProviderService
 {
-    private readonly ICommitmentsV2ApiClient _commitmentsV2ApiClient;
-    private readonly IProviderRepository _providerRepository;
-    private readonly ILogger<ImportProviderService> _logger;
-
-    public ImportProviderService(ICommitmentsV2ApiClient commitmentsV2ApiClient, IProviderRepository providerRepository, ILogger<ImportProviderService> logger)
-    {
-        _commitmentsV2ApiClient = commitmentsV2ApiClient;
-        _providerRepository = providerRepository;
-        _logger = logger;
-    }
+    private readonly ICommitmentsV2ApiClient _commitmentsV2ApiClient = commitmentsV2ApiClient;
+    private readonly IProviderRepository _providerRepository = providerRepository;
+    private readonly ILogger<ImportProviderService> _logger = logger;
 
     public async Task Import()
     {

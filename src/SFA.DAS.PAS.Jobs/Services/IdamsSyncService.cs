@@ -15,27 +15,18 @@ using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Services;
 
 namespace SFA.DAS.PAS.Jobs.Services;
 
-public class IdamsSyncService : IIdamsSyncService
+public class IdamsSyncService(
+    IUserRepository userRepository,
+    IProviderRepository providerRepository,
+    ILogger<IdamsSyncService> logger,
+    IApiHelper apiHelper,
+    DfEOidcConfiguration dfEOidcConfiguration) : IIdamsSyncService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IProviderRepository _providerRepository;
-    private readonly ILogger<IdamsSyncService> _logger;
-    private readonly IApiHelper _apiHelper;
-    private readonly DfEOidcConfiguration _dfEOidcConfiguration;
-
-    public IdamsSyncService(
-        IUserRepository userRepository,
-        IProviderRepository providerRepository,
-        ILogger<IdamsSyncService> logger,
-        IApiHelper apiHelper,
-        DfEOidcConfiguration dfEOidcConfiguration)
-    {
-        _userRepository = userRepository;
-        _providerRepository = providerRepository;
-        _logger = logger;
-        _apiHelper = apiHelper;
-        _dfEOidcConfiguration = dfEOidcConfiguration;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IProviderRepository _providerRepository = providerRepository;
+    private readonly ILogger<IdamsSyncService> _logger = logger;
+    private readonly IApiHelper _apiHelper = apiHelper;
+    private readonly DfEOidcConfiguration _dfEOidcConfiguration = dfEOidcConfiguration;
 
     public async Task SyncUsers()
     {
