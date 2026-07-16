@@ -4,9 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <LangVersion>latestmajor</LangVersion>
-	<NoWarn>CA1873</NoWarn>
+	<NoWarn>$(NoWarn);CA1873</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Domain\SFA.DAS.ProviderApprenticeshipsService.Domain.csproj" />
     <ProjectReference Include="..\SFA.DAS.ProviderApprenticeshipsService.Infrastructure\SFA.DAS.ProviderApprenticeshipsService.Infrastructure.csproj" />
