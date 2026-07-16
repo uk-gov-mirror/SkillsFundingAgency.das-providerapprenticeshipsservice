@@ -5,4 +5,3 @@ public interface IBaseConfiguration : IDatabaseConfiguration
     string ServiceBusConnectionString { get; set; }
     public string NServiceBusLicense { get; set; }
 }
-
