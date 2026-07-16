@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +11,6 @@ using SFA.DAS.DfESignIn.Auth.Api.Client;
 using SFA.DAS.DfESignIn.Auth.Api.Helpers;
 using SFA.DAS.DfESignIn.Auth.Configuration;
 using SFA.DAS.DfESignIn.Auth.Interfaces;
-using SFA.DAS.Http;
-using SFA.DAS.Http.Configuration;
-using SFA.DAS.Http.TokenGenerators;
 using SFA.DAS.PAS.Jobs.Configuration;
 using SFA.DAS.PAS.Jobs.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Configurations;
@@ -48,7 +44,6 @@ public static class AddApplicationRegistrationsExtension
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration"));
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration_ProviderRoATP"));
         services.AddSingleton(provider => provider.GetService<IOptions<DfEOidcConfiguration>>()!.Value);
-        services.AddSingleton(provider => provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.CommitmentNotification);
 
         services.AddHttpClient<IApiHelper, DfeSignInApiHelper>(options => options.Timeout = TimeSpan.FromMinutes(30))
             .SetHandlerLifetime(TimeSpan.FromMinutes(10))
@@ -56,22 +51,11 @@ public static class AddApplicationRegistrationsExtension
 
         services.AddTransient<ITokenDataSerializer, TokenDataSerializer>();
         services.AddTransient<ITokenBuilder, TokenBuilder>();
-        services.AddTransient<IHttpClientWrapper>(provider =>
-        {
-            var config = provider.GetService<ProviderNotificationConfiguration>();
-            return new HttpClientWrapper(GetHttpClient(config));
-        });
 
         services.AddTransient<IIdamsSyncService, IdamsSyncService>();
         services.AddTransient<IUserRepository, UserRepository>();
-        services.AddTransient<IIdamsEmailServiceWrapper, IdamsEmailServiceWrapper>();
 
         return services;
-    }
-
-    private static HttpClient GetHttpClient(IJwtClientConfiguration config)
-    {
-        return new HttpClientBuilder().WithBearerAuthorisationHeader(new JwtBearerTokenGenerator(config)).Build();
     }
 
     private static IAsyncPolicy<System.Net.Http.HttpResponseMessage> HttpClientRetryPolicy()

@@ -9,5 +9,4 @@ public class PasJobsConfiguration : IDatabaseConfiguration
 {
     public string DatabaseConnectionString { get; set; }
     public CommitmentsApiClientV2Configuration CommitmentsApiClientV2 { get; set; }
-    public ProviderNotificationConfiguration CommitmentNotification { get; set; }
 }
