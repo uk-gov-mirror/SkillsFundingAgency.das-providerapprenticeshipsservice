@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Http;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Retry;
 using SFA.DAS.DfESignIn.Auth.Api.Client;
 using SFA.DAS.DfESignIn.Auth.Api.Helpers;
 using SFA.DAS.DfESignIn.Auth.Configuration;
@@ -58,11 +61,11 @@ public static class AddApplicationRegistrationsExtension
         return services;
     }
 
-    private static IAsyncPolicy<System.Net.Http.HttpResponseMessage> HttpClientRetryPolicy()
+    private static AsyncRetryPolicy<HttpResponseMessage> HttpClientRetryPolicy()
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()
-            .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            .OrResult(msg => msg.StatusCode == HttpStatusCode.InternalServerError)
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     }
 }

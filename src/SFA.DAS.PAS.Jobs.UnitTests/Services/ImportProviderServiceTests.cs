@@ -26,7 +26,7 @@ public class ImportProviderServiceTests
 
     private class ImportProviderServiceTestFixture
     {
-        private readonly IImportProviderService _sut;
+        private readonly ImportProviderService _sut;
         private readonly Mock<IProviderRepository> _importProviderRepository;
 
         public ImportProviderServiceTestFixture()

@@ -83,7 +83,7 @@ public class IdamsSyncService : IIdamsSyncService
 
     private Task LogAndUpdateProviderState(Exception ex, Provider provider, string errorMessage)
     {
-        _logger.LogWarning(ex, errorMessage);
+        _logger.LogWarning(ex, "{ErrorMessage}", errorMessage);
         return _providerRepository.MarkProviderIdamsUpdated(provider.Ukprn);
     }
 
