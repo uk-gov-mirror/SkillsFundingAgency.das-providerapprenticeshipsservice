@@ -6,7 +6,7 @@ using SFA.DAS.Authentication.Extensions.Legacy;
 using SFA.DAS.PAS.Jobs.ApiModels;
 using SFA.DAS.PAS.Jobs.Configuration;
 
-namespace SFA.DAS.PAS.Jobs.Services;
+namespace SFA.DAS.PAS.Jobs.ApiClients;
 
 public class RoatpApiClient(
     HttpClient httpClient,

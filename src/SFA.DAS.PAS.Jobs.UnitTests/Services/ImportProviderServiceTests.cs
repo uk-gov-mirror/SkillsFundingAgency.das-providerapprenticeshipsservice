@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoFixture.NUnit4;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.PAS.Jobs.ApiClients;
 using SFA.DAS.PAS.Jobs.ApiModels;
 using SFA.DAS.PAS.Jobs.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Data;
