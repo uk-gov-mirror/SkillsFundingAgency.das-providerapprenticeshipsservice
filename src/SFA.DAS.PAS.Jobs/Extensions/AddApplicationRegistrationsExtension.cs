@@ -5,14 +5,15 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
-using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Retry;
+using Refit;
+using SFA.DAS.Api.Common.Infrastructure;
+using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.DfESignIn.Auth.Api.Client;
 using SFA.DAS.DfESignIn.Auth.Api.Helpers;
 using SFA.DAS.DfESignIn.Auth.Configuration;
@@ -35,18 +36,28 @@ public static class AddApplicationRegistrationsExtension
         services.AddSingleton<IDatabaseConfiguration>(provider => provider.GetRequiredService<IOptions<PasJobsConfiguration>>().Value);
         services.AddSingleton(provider => provider.GetRequiredService<IOptions<PasJobsConfiguration>>().Value.RoatpApiClient);
 
-        services.AddSingleton<TokenCredential>(_ => new ChainedTokenCredential(
-            new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
-            new AzureCliCredential()));
+        services.AddSingleton<IAzureClientCredentialHelper>(_ => new AzureClientCredentialHelper(configuration));
+        services.AddTransient<RoatpApiAuthorizationHandler>();
 
-        services.AddTransient<RoatpBearerTokenHandler>();
-        services.AddHttpClient<IRoatpApiClient, RoatpApiClient>()
-            .AddHttpMessageHandler<RoatpBearerTokenHandler>()
+        services.AddRefitClient<IRoatpApiClient>()
+            .ConfigureHttpClient((serviceProvider, client) =>
+            {
+                var roatpConfiguration = serviceProvider.GetRequiredService<RoatpConfiguration>();
+                client.BaseAddress = new Uri(roatpConfiguration.ApiBaseUrl.TrimEnd('/') + "/");
+            })
+            .AddHttpMessageHandler<RoatpApiAuthorizationHandler>()
             .AddPolicyHandler(HttpClientRetryPolicy());
 
         services.AddTransient<IImportProviderService, ImportProviderService>();
         services.AddTransient<IProviderRepository, ProviderRepository>();
 
+        services.AddDfeSignInRegistrations(configuration);
+
+        return services;
+    }
+
+    private static IServiceCollection AddDfeSignInRegistrations(this IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration"));
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration_ProviderRoATP"));
         services.AddSingleton(provider => provider.GetRequiredService<IOptions<DfEOidcConfiguration>>().Value);
@@ -74,17 +85,16 @@ public static class AddApplicationRegistrationsExtension
 }
 
 [ExcludeFromCodeCoverage]
-internal sealed class RoatpBearerTokenHandler(TokenCredential tokenCredential, RoatpConfiguration config) : DelegatingHandler
+internal sealed class RoatpApiAuthorizationHandler(
+    IAzureClientCredentialHelper azureClientCredentialHelper,
+    RoatpConfiguration config) : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (!string.IsNullOrWhiteSpace(config.IdentifierUri))
         {
-            var token = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext([config.IdentifierUri.TrimEnd('/') + "/.default"]),
-                cancellationToken);
-
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+            var accessToken = await azureClientCredentialHelper.GetAccessTokenAsync(config.IdentifierUri);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         }
 
         return await base.SendAsync(request, cancellationToken);

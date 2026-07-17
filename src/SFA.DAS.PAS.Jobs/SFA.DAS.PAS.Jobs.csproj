@@ -17,7 +17,6 @@
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0" />
 	<PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.165" />
     <PackageReference Include="SFA.DAS.DfESignIn.Auth" Version="17.1.165" />
-    <PackageReference Include="SFA.DAS.Http" Version="3.2.69" />
 	<PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
 	<PackageReference Include="Refit" Version="12.1.0" />
 	<PackageReference Include="Refit.HttpClientFactory" Version="12.1.0" />

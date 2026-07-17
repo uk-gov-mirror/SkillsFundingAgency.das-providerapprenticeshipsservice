@@ -5,7 +5,7 @@ using SFA.DAS.PAS.Jobs.Services;
 
 namespace SFA.DAS.PAS.Jobs.Functions;
 
-public class UpdateUsersFromDfeSignInFunction(IUserSyncService idamsSyncService, ILogger<UpdateUsersFromDfeSignInFunction> logger)
+public class UpdateUsersFromDfeSignInFunction(IUserSyncService userSyncService, ILogger<UpdateUsersFromDfeSignInFunction> logger)
 {
     [Function(nameof(UpdateUsersFromDfeSignInFunction))]
     public async Task Run([TimerTrigger("%UpdateUsersFromDfESignInJobSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
@@ -16,7 +16,7 @@ public class UpdateUsersFromDfeSignInFunction(IUserSyncService idamsSyncService,
         }
         logger.LogInformation("UpdateUsersFromDfeSignInFunction started");
 
-        await idamsSyncService.SyncUsers();
+        await userSyncService.SyncUsers();
 
         logger.LogInformation("UpdateUsersFromDfeSignInFunction completed");
     }
