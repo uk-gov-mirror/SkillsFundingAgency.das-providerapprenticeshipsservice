@@ -12,16 +12,9 @@ jobs:
     steps:
       - template: azure-pipelines-templates/build/step/gitversion.yml@das-platform-building-blocks
 
-      # Coverlet (via app-build) writes OpenCover here for SonarCloudAnalyze to import
-      - pwsh: |
-          New-Item -ItemType Directory -Force -Path "$(Agent.TempDirectory)/CoverageResults" | Out-Null
-        displayName: Ensure Coverlet output directory exists
-
       - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
         parameters:
           SonarCloudProjectKey: SkillsFundingAgency_das-providerapprenticeshipsservice
-          UnitTestProjects: '**/*UnitTests.csproj'
-          RunAcceptanceTests: false
           ContinueOnVulnerablePackageScanError: true
 
       - task: DotNetCoreCLI@2
