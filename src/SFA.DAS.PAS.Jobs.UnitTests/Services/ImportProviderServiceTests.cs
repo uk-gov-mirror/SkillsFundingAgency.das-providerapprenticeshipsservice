@@ -27,7 +27,7 @@ public class ImportProviderServiceTests
             .Setup(x => x.GetProviders())
             .ReturnsAsync(new GetAllProvidersResponse { Organisations = providers });
 
-        await sut.Import();
+        await sut.ImportProviders();
 
         providerRepository.Verify(x => x.ImportProviders(It.IsAny<CommitmentsV2.Api.Types.Responses.Provider[]>()), Times.Exactly(2));
     }
@@ -42,7 +42,7 @@ public class ImportProviderServiceTests
             .Setup(x => x.GetProviders())
             .ReturnsAsync(new GetAllProvidersResponse { Organisations = [] });
 
-        await sut.Import();
+        await sut.ImportProviders();
 
         providerRepository.Verify(x => x.ImportProviders(It.IsAny<CommitmentsV2.Api.Types.Responses.Provider[]>()), Times.Never);
     }

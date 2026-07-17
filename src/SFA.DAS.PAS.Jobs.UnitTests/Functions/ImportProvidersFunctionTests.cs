@@ -19,7 +19,7 @@ public class ImportProvidersFunctionTests
     {
         await sut.Run(null);
 
-        importProviderService.Verify(x => x.Import(), Times.Once);
+        importProviderService.Verify(x => x.ImportProviders(), Times.Once);
     }
 
     [Test, MoqAutoData]
@@ -27,7 +27,7 @@ public class ImportProvidersFunctionTests
         [Frozen] Mock<IImportProviderService> importProviderService,
         [Greedy] ImportProvidersFunction sut)
     {
-        importProviderService.Setup(x => x.Import())
+        importProviderService.Setup(x => x.ImportProviders())
             .ThrowsAsync(new ApplicationException("Inner exception"));
 
         var act = async () => await sut.Run(null);
@@ -36,15 +36,15 @@ public class ImportProvidersFunctionTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenRun_AndImportThrowsAggregateException_ThenDoesNotRethrowError(
+    public async Task WhenRun_AndImportThrowsAggregateException_ThenRethrowsError(
         [Frozen] Mock<IImportProviderService> importProviderService,
         [Greedy] ImportProvidersFunction sut)
     {
-        importProviderService.Setup(x => x.Import())
+        importProviderService.Setup(x => x.ImportProviders())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));
 
-        await sut.Run(null);
+        var act = async () => await sut.Run(null);
 
-        importProviderService.Verify(x => x.Import(), Times.Once);
+        await act.Should().ThrowAsync<AggregateException>();
     }
 }

@@ -29,7 +29,7 @@ namespace SFA.DAS.PAS.Jobs.Extensions;
 [ExcludeFromCodeCoverage]
 public static class AddApplicationRegistrationsExtension
 {
-    public static IServiceCollection AddServiceRegistrations(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationRegistrations(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<PasJobsConfiguration>(configuration);
         services.AddSingleton<IDatabaseConfiguration>(provider => provider.GetRequiredService<IOptions<PasJobsConfiguration>>().Value);
@@ -58,7 +58,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddTransient<ITokenDataSerializer, TokenDataSerializer>();
         services.AddTransient<ITokenBuilder, TokenBuilder>();
 
-        services.AddTransient<IIdamsSyncService, IdamsSyncService>();
+        services.AddTransient<IUserSyncService, UserSyncService>();
         services.AddTransient<IUserRepository, UserRepository>();
 
         return services;

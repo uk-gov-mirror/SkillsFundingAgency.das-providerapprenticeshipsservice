@@ -14,7 +14,7 @@ public class UpdateUsersFromDfeSignInFunctionTests
 {
     [Test, MoqAutoData]
     public async Task WhenRun_AndSyncSucceeds_ThenCallsIdamsSyncServiceOnce(
-        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+        [Frozen] Mock<IUserSyncService> idamsSyncService,
         [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
         await sut.Run(null);
@@ -24,7 +24,7 @@ public class UpdateUsersFromDfeSignInFunctionTests
 
     [Test, MoqAutoData]
     public async Task WhenRun_AndSyncUsersThrowsException_ThenRethrowsError(
-        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+        [Frozen] Mock<IUserSyncService> idamsSyncService,
         [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
         idamsSyncService.Setup(x => x.SyncUsers())
@@ -36,15 +36,15 @@ public class UpdateUsersFromDfeSignInFunctionTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenRun_AndSyncUsersThrowsAggregateException_ThenDoesNotRethrowError(
-        [Frozen] Mock<IIdamsSyncService> idamsSyncService,
+    public async Task WhenRun_AndSyncUsersThrowsAggregateException_ThenRethrowsError(
+        [Frozen] Mock<IUserSyncService> idamsSyncService,
         [Greedy] UpdateUsersFromDfeSignInFunction sut)
     {
         idamsSyncService.Setup(x => x.SyncUsers())
             .ThrowsAsync(new AggregateException("Inner Aggregate Exception"));
 
-        await sut.Run(null);
+        var act = async () => await sut.Run(null);
 
-        idamsSyncService.Verify(x => x.SyncUsers(), Times.Once);
+        await act.Should().ThrowAsync<AggregateException>();
     }
 }

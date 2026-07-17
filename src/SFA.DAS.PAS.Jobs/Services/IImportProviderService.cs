@@ -4,5 +4,5 @@ namespace SFA.DAS.PAS.Jobs.Services;
 
 public interface IImportProviderService
 {
-    Task Import();
+    Task ImportProviders();
 }

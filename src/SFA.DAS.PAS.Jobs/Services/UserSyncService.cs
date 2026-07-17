@@ -15,12 +15,12 @@ using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Services;
 
 namespace SFA.DAS.PAS.Jobs.Services;
 
-public class IdamsSyncService(
+public class UserSyncService(
     IUserRepository userRepository,
     IProviderRepository providerRepository,
-    ILogger<IdamsSyncService> logger,
+    ILogger<UserSyncService> logger,
     IApiHelper apiHelper,
-    DfEOidcConfiguration dfEOidcConfiguration) : IIdamsSyncService
+    DfEOidcConfiguration dfEOidcConfiguration) : IUserSyncService
 {
     public async Task SyncUsers()
     {

@@ -19,14 +19,14 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.PAS.Jobs.UnitTests.Services;
 
-public class IdamsSyncServiceTests
+public class UserSyncServiceTests
 {
     [Test, MoqAutoData]
     public async Task WhenSyncUsers_AndProviderExists_ThenGetsNextProviderToProcess(
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider,
         DfeUser dfeUser)
     {
@@ -42,7 +42,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider,
         DfeUser dfeUser)
     {
@@ -61,7 +61,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IUserRepository> userRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider,
         DfeUser dfeUser)
     {
@@ -81,7 +81,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider,
         DfeUser dfeUser)
     {
@@ -97,7 +97,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(provider);
@@ -111,7 +111,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(provider);
@@ -127,7 +127,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut)
+        [Greedy] UserSyncService sut)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync((Provider)null);
 
@@ -141,7 +141,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(provider);
@@ -159,7 +159,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(provider);
@@ -178,7 +178,7 @@ public class IdamsSyncServiceTests
         [Frozen] Mock<IUserRepository> userRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
-        [Greedy] IdamsSyncService sut,
+        [Greedy] UserSyncService sut,
         Provider provider)
     {
         providerRepository.Setup(x => x.GetNextProviderForIdamsUpdate()).ReturnsAsync(provider);

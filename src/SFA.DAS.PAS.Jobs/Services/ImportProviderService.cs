@@ -14,7 +14,7 @@ public class ImportProviderService(
 {
     private const int BatchSize = 1000;
 
-    public async Task Import()
+    public async Task ImportProviders()
     {
         logger.LogInformation("ImportProvidersJob - Started");
 
