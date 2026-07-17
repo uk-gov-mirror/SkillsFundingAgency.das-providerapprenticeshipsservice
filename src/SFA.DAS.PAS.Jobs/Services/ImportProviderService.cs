@@ -1,15 +1,15 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.CommitmentsV2.Api.Types.Responses;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Data;
-using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Services;
 
 namespace SFA.DAS.PAS.Jobs.Services;
 
-public class ImportProviderService(ICommitmentsV2ApiClient commitmentsV2ApiClient, IProviderRepository providerRepository, ILogger<ImportProviderService> logger) : IImportProviderService
+public class ImportProviderService(IRoatpApiClient roatpApiClient, IProviderRepository providerRepository, ILogger<ImportProviderService> logger) : IImportProviderService
 {
-    private readonly ICommitmentsV2ApiClient _commitmentsV2ApiClient = commitmentsV2ApiClient;
+    private readonly IRoatpApiClient _roatpApiClient = roatpApiClient;
     private readonly IProviderRepository _providerRepository = providerRepository;
     private readonly ILogger<ImportProviderService> _logger = logger;
 
@@ -17,13 +17,22 @@ public class ImportProviderService(ICommitmentsV2ApiClient commitmentsV2ApiClien
     {
         _logger.LogInformation("Import Provider - Started");
 
-        var providersResponse = await _commitmentsV2ApiClient.GetProviders();
-        var providers = providersResponse.Providers;
+        var providersResponse = await _roatpApiClient.GetProviders();
+        var providers = providersResponse.Organisations;
         var batches = providers.Chunk(1000);
 
         foreach (var batch in batches)
         {
-            await ImportProviders(batch);
+            List<Provider> providersList = new(batch.Length);
+            foreach (var provider in batch)
+            {
+                providersList.Add(new Provider
+                {
+                    Ukprn = provider.Ukprn,
+                    Name = provider.LegalName,
+                });
+            }
+            await ImportProviders([.. providersList]);
         }
 
         _logger.LogInformation("ImportProvidersJob - Finished");

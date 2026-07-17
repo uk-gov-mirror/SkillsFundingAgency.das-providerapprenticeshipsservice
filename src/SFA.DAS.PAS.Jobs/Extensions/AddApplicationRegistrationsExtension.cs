@@ -18,9 +18,7 @@ using SFA.DAS.PAS.Jobs.Configuration;
 using SFA.DAS.PAS.Jobs.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Configurations;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Data;
-using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Services;
 
 namespace SFA.DAS.PAS.Jobs.Extensions;
 
@@ -34,14 +32,14 @@ public static class AddApplicationRegistrationsExtension
 
         services.AddSingleton(provider =>
         {
-            var commitmentsConfig = provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.CommitmentsApiClientV2;
-            return new ProviderApprenticeshipsService.Infrastructure.Configuration.CommitmentsApiClientV2Configuration
+            var roatpConfig = provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.RoatpApiClient;
+            return new RoatpConfiguration
             {
-                ApiBaseUrl = commitmentsConfig.ApiBaseUrl,
-                IdentifierUri = commitmentsConfig.IdentifierUri
+                ApiBaseUrl = roatpConfig.ApiBaseUrl,
+                IdentifierUri = roatpConfig.IdentifierUri
             };
         });
-        services.AddHttpClient<ICommitmentsV2ApiClient, CommitmentsV2ApiClient>();
+        services.AddHttpClient<IRoatpApiClient, RoatpApiClient>();
 
         services.AddSingleton<TokenCredential>(new ChainedTokenCredential(
             new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
