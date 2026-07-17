@@ -19,7 +19,6 @@ using SFA.DAS.PAS.Jobs.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Configurations;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Data;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Services;
-using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Configuration;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Data;
 using SFA.DAS.ProviderApprenticeshipsService.Infrastructure.Services;
 
@@ -36,7 +35,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddSingleton(provider =>
         {
             var commitmentsConfig = provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.CommitmentsApiClientV2;
-            return new CommitmentsApiClientV2Configuration
+            return new ProviderApprenticeshipsService.Infrastructure.Configuration.CommitmentsApiClientV2Configuration
             {
                 ApiBaseUrl = commitmentsConfig.ApiBaseUrl,
                 IdentifierUri = commitmentsConfig.IdentifierUri

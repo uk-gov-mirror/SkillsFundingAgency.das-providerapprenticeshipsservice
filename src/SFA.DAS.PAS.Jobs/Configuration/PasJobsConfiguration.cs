@@ -7,5 +7,5 @@ namespace SFA.DAS.PAS.Jobs.Configuration;
 public class PasJobsConfiguration : IDatabaseConfiguration
 {
     public string DatabaseConnectionString { get; set; }
-    public CommitmentsApiClientConfiguration CommitmentsApiClientV2 { get; set; }
+    public CommitmentsApiClientV2Configuration CommitmentsApiClientV2 { get; set; }
 }
