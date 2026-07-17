@@ -28,7 +28,7 @@ public class ImportProviderService(
 
         foreach (var batch in providers.Chunk(BatchSize))
         {
-            var mapped = batch
+            var mappedProviders = batch
                 .Select(provider => new Provider
                 {
                     Ukprn = provider.Ukprn,
@@ -36,7 +36,7 @@ public class ImportProviderService(
                 })
                 .ToArray();
 
-            await providerRepository.ImportProviders(mapped);
+            await providerRepository.ImportProviders(mappedProviders);
         }
 
         logger.LogInformation("ImportProvidersJob - Finished");

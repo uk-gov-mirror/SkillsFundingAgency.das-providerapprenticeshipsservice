@@ -6,5 +6,4 @@ public class Provider
 
     public string LegalName { get; set; }
 
-    public string Status { get; set; }
 }
