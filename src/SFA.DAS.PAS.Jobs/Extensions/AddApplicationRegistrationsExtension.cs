@@ -33,8 +33,15 @@ public static class AddApplicationRegistrationsExtension
         services.Configure<PasJobsConfiguration>(configuration);
         services.AddSingleton<IDatabaseConfiguration>(provider => provider.GetService<IOptions<PasJobsConfiguration>>()!.Value);
 
-        services.Configure<CommitmentsApiClientV2Configuration>(c => configuration.GetSection(ConfigurationKeys.CommitmentsApiClientV2).Bind(c));
-        services.AddSingleton(provider => provider.GetService<IOptions<CommitmentsApiClientV2Configuration>>()!.Value);
+        services.AddSingleton(provider =>
+        {
+            var commitmentsConfig = provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.CommitmentsApiClientV2;
+            return new CommitmentsApiClientV2Configuration
+            {
+                ApiBaseUrl = commitmentsConfig.ApiBaseUrl,
+                IdentifierUri = commitmentsConfig.IdentifierUri
+            };
+        });
         services.AddHttpClient<ICommitmentsV2ApiClient, CommitmentsV2ApiClient>();
 
         services.AddSingleton<TokenCredential>(new ChainedTokenCredential(
