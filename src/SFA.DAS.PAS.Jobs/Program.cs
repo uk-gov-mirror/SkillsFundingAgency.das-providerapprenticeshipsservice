@@ -17,30 +17,30 @@ public static class Program
     public static async Task Main()
     {
         var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
-    .ConfigureAppConfiguration(builder => builder.AddConfiguration())
-    .ConfigureServices((context, services) =>
-    {
-        services
-            .AddApplicationInsightsTelemetryWorkerService()
-            .ConfigureFunctionsApplicationInsights()
-            .AddTelemetryRegistration((IConfigurationRoot)context.Configuration)
-            .AddServiceRegistrations(context.Configuration);
-    })
-    .ConfigureLogging(logging =>
-    {
-        logging.Services.Configure<LoggerFilterOptions>(options =>
-        {
-            var defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
-                == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-
-            if (defaultRule is not null)
+            .ConfigureFunctionsWorkerDefaults()
+            .ConfigureAppConfiguration(builder => builder.AddConfiguration())
+            .ConfigureServices((context, services) =>
             {
-                options.Rules.Remove(defaultRule);
-            }
-        });
-    })
-    .Build();
+                services
+                    .AddApplicationInsightsTelemetryWorkerService()
+                    .ConfigureFunctionsApplicationInsights()
+                    .AddTelemetryRegistration((IConfigurationRoot)context.Configuration)
+                    .AddServiceRegistrations(context.Configuration);
+            })
+            .ConfigureLogging(logging =>
+            {
+                logging.Services.Configure<LoggerFilterOptions>(options =>
+                {
+                    var defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                        == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+
+                    if (defaultRule is not null)
+                    {
+                        options.Rules.Remove(defaultRule);
+                    }
+                });
+            })
+            .Build();
 
         await host.RunAsync();
     }

@@ -4,5 +4,5 @@ namespace SFA.DAS.PAS.Jobs.ApiModels;
 
 public class GetAllProvidersResponse
 {
-    public List<Provider> Organisations { get; set; }
+    public List<Provider> Organisations { get; set; } = [];
 }

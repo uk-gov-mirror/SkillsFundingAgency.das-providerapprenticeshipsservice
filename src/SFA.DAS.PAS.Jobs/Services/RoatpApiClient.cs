@@ -8,27 +8,34 @@ using SFA.DAS.PAS.Jobs.Configuration;
 
 namespace SFA.DAS.PAS.Jobs.Services;
 
-public class RoatpApiClient(HttpClient httpClient, RoatpConfiguration config, ILogger<RoatpApiClient> logger) : ApiClientBase(httpClient), IRoatpApiClient
+public class RoatpApiClient(
+    HttpClient httpClient,
+    RoatpConfiguration config,
+    ILogger<RoatpApiClient> logger) : ApiClientBase(httpClient), IRoatpApiClient
 {
-    private readonly RoatpConfiguration _config = config;
-    private readonly ILogger<RoatpApiClient> _logger = logger;
-
     public async Task<GetAllProvidersResponse> GetProviders()
     {
-        _logger.LogInformation("Getting Providers from RoATP API");
+        logger.LogInformation("Getting Providers from RoATP API");
+
         var url = $"{BaseUrl()}Organisations";
-        var response = JsonConvert.DeserializeObject<GetAllProvidersResponse>(await GetAsync(url));
+        var content = await GetAsync(url);
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            logger.LogWarning("RoATP API returned an empty response for {Url}", url);
+            return new GetAllProvidersResponse { Organisations = [] };
+        }
+
+        var response = JsonConvert.DeserializeObject<GetAllProvidersResponse>(content);
+
+        if (response?.Organisations == null)
+        {
+            logger.LogWarning("RoATP API response could not be deserialized for {Url}", url);
+            return new GetAllProvidersResponse { Organisations = [] };
+        }
 
         return response;
     }
 
-    private string BaseUrl()
-    {
-        if (_config.ApiBaseUrl.EndsWith("/"))
-        {
-            return _config.ApiBaseUrl;
-        }
-
-        return _config.ApiBaseUrl + "/";
-    }
+    private string BaseUrl() => config.ApiBaseUrl.TrimEnd('/') + "/";
 }

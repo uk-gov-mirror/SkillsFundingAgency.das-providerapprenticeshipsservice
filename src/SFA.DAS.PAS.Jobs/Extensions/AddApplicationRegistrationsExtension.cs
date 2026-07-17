@@ -2,6 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
@@ -28,29 +31,24 @@ public static class AddApplicationRegistrationsExtension
     public static IServiceCollection AddServiceRegistrations(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<PasJobsConfiguration>(configuration);
-        services.AddSingleton<IDatabaseConfiguration>(provider => provider.GetService<IOptions<PasJobsConfiguration>>()!.Value);
+        services.AddSingleton<IDatabaseConfiguration>(provider => provider.GetRequiredService<IOptions<PasJobsConfiguration>>().Value);
+        services.AddSingleton(provider => provider.GetRequiredService<IOptions<PasJobsConfiguration>>().Value.RoatpApiClient);
 
-        services.AddSingleton(provider =>
-        {
-            var roatpConfig = provider.GetService<IOptions<PasJobsConfiguration>>()!.Value.RoatpApiClient;
-            return new RoatpConfiguration
-            {
-                ApiBaseUrl = roatpConfig.ApiBaseUrl,
-                IdentifierUri = roatpConfig.IdentifierUri
-            };
-        });
-        services.AddHttpClient<IRoatpApiClient, RoatpApiClient>();
-
-        services.AddSingleton<TokenCredential>(new ChainedTokenCredential(
+        services.AddSingleton<TokenCredential>(_ => new ChainedTokenCredential(
             new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
             new AzureCliCredential()));
+
+        services.AddTransient<RoatpBearerTokenHandler>();
+        services.AddHttpClient<IRoatpApiClient, RoatpApiClient>()
+            .AddHttpMessageHandler<RoatpBearerTokenHandler>()
+            .AddPolicyHandler(HttpClientRetryPolicy());
 
         services.AddTransient<IImportProviderService, ImportProviderService>();
         services.AddTransient<IProviderRepository, ProviderRepository>();
 
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration"));
         services.Configure<DfEOidcConfiguration>(configuration.GetSection("DfEOidcConfiguration_ProviderRoATP"));
-        services.AddSingleton(provider => provider.GetService<IOptions<DfEOidcConfiguration>>()!.Value);
+        services.AddSingleton(provider => provider.GetRequiredService<IOptions<DfEOidcConfiguration>>().Value);
 
         services.AddHttpClient<IApiHelper, DfeSignInApiHelper>(options => options.Timeout = TimeSpan.FromMinutes(30))
             .SetHandlerLifetime(TimeSpan.FromMinutes(10))
@@ -71,5 +69,23 @@ public static class AddApplicationRegistrationsExtension
             .HandleTransientHttpError()
             .OrResult(msg => msg.StatusCode == HttpStatusCode.InternalServerError)
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+    }
+}
+
+[ExcludeFromCodeCoverage]
+internal sealed class RoatpBearerTokenHandler(TokenCredential tokenCredential, RoatpConfiguration config) : DelegatingHandler
+{
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(config.IdentifierUri))
+        {
+            var token = await tokenCredential.GetTokenAsync(
+                new TokenRequestContext([config.IdentifierUri.TrimEnd('/') + "/.default"]),
+                cancellationToken);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        }
+
+        return await base.SendAsync(request, cancellationToken);
     }
 }

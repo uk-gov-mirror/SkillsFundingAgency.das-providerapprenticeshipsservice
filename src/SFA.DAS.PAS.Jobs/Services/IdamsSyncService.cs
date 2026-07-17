@@ -22,35 +22,27 @@ public class IdamsSyncService(
     IApiHelper apiHelper,
     DfEOidcConfiguration dfEOidcConfiguration) : IIdamsSyncService
 {
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IProviderRepository _providerRepository = providerRepository;
-    private readonly ILogger<IdamsSyncService> _logger = logger;
-    private readonly IApiHelper _apiHelper = apiHelper;
-    private readonly DfEOidcConfiguration _dfEOidcConfiguration = dfEOidcConfiguration;
-
     public async Task SyncUsers()
     {
-        List<IdamsUser> idamsUsers;
-
-        var provider = await _providerRepository.GetNextProviderForIdamsUpdate();
+        var provider = await providerRepository.GetNextProviderForIdamsUpdate();
 
         if (provider == null)
         {
-            _logger.LogInformation("SyncUsers - No Provider Found");
+            logger.LogInformation("SyncUsers - No Provider Found");
             return;
         }
 
-        _logger.LogInformation("SyncUsers For Provider {Ukprn} has started", provider.Ukprn);
+        logger.LogInformation("SyncUsers For Provider {Ukprn} has started", provider.Ukprn);
 
         try
         {
-            _logger.LogInformation("Retrieving DAS Users and Super Users for Provider {Ukprn}", provider.Ukprn);
-            idamsUsers = await GetIdamsUsers(provider.Ukprn);
+            logger.LogInformation("Retrieving DAS Users for Provider {Ukprn}", provider.Ukprn);
+            var idamsUsers = await GetIdamsUsers(provider.Ukprn);
 
-            _logger.LogInformation("Synchronise Users with IDAMS for Provider {Ukprn}", provider.Ukprn);
-            await _userRepository.SyncIdamsUsers(provider.Ukprn, idamsUsers);
+            logger.LogInformation("Synchronise Users with IDAMS for Provider {Ukprn}", provider.Ukprn);
+            await userRepository.SyncIdamsUsers(provider.Ukprn, idamsUsers);
 
-            await _providerRepository.MarkProviderIdamsUpdated(provider.Ukprn);
+            await providerRepository.MarkProviderIdamsUpdated(provider.Ukprn);
         }
         catch (CustomHttpRequestException httpRequestEx)
         {
@@ -74,29 +66,27 @@ public class IdamsSyncService(
 
     private Task LogAndUpdateProviderState(Exception ex, Provider provider, string errorMessage)
     {
-        _logger.LogWarning(ex, "{ErrorMessage}", errorMessage);
-        return _providerRepository.MarkProviderIdamsUpdated(provider.Ukprn);
+        logger.LogWarning(ex, "{ErrorMessage}", errorMessage);
+        return providerRepository.MarkProviderIdamsUpdated(provider.Ukprn);
     }
 
     private async Task<List<IdamsUser>> GetIdamsUsers(long providerId)
     {
-        var endpoint = $"{_dfEOidcConfiguration.APIServiceUrl}/organisations/{providerId}/users";
-        var response = await _apiHelper.Get<DfeUser>(endpoint);
+        var endpoint = $"{dfEOidcConfiguration.APIServiceUrl}/organisations/{providerId}/users";
+        var response = await apiHelper.Get<DfeUser>(endpoint);
 
-        if (response == null)
+        if (response?.Users == null)
         {
-            _logger.LogInformation("{Endpoint} - None found", endpoint);
-            return new List<IdamsUser>();
+            logger.LogInformation("{Endpoint} - None found", endpoint);
+            return [];
         }
 
-        _logger.LogInformation("{Endpoint} - Found {Count}", endpoint, response.Users.Count);
+        logger.LogInformation("{Endpoint} - Found {Count}", endpoint, response.Users.Count);
 
-        var idamsUsers = response.Users.Where(c => c.UserStatus == 1).Distinct();
-        var idamsSuperUsers = new List<IdamsUser>();
-        var idamsNormalUsers = idamsUsers.Where(u => !idamsSuperUsers.Any(su => su.Email.Equals(u.Email, StringComparison.InvariantCultureIgnoreCase)));
-
-        return idamsNormalUsers.Select(u => new IdamsUser { Email = u.Email, UserType = UserType.NormalUser })
-            .Concat(idamsSuperUsers.Select(su => new IdamsUser { Email = su.Email, UserType = UserType.SuperUser }))
+        return response.Users
+            .Where(u => u.UserStatus == 1)
+            .GroupBy(u => u.Email, StringComparer.OrdinalIgnoreCase)
+            .Select(g => new IdamsUser { Email = g.Key, UserType = UserType.NormalUser })
             .ToList();
     }
 }

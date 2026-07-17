@@ -30,4 +30,19 @@ public class ImportProviderServiceTests
 
         providerRepository.Verify(x => x.ImportProviders(It.IsAny<CommitmentsV2.Api.Types.Responses.Provider[]>()), Times.Exactly(2));
     }
+
+    [Test, MoqAutoData]
+    public async Task WhenImport_AndNoProvidersReturned_ThenDoesNotCallRepository(
+        [Frozen] Mock<IRoatpApiClient> roatpApiClient,
+        [Frozen] Mock<IProviderRepository> providerRepository,
+        [Greedy] ImportProviderService sut)
+    {
+        roatpApiClient
+            .Setup(x => x.GetProviders())
+            .ReturnsAsync(new GetAllProvidersResponse { Organisations = [] });
+
+        await sut.Import();
+
+        providerRepository.Verify(x => x.ImportProviders(It.IsAny<CommitmentsV2.Api.Types.Responses.Provider[]>()), Times.Never);
+    }
 }

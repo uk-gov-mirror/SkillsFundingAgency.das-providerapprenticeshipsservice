@@ -25,6 +25,6 @@ public static class AddConfigurationExtension
             options.StorageConnectionString = configuration["ConfigurationStorageConnectionString"];
             options.EnvironmentName = configuration["EnvironmentName"];
             options.PreFixConfigurationKeys = false;
-        }).Build();
+        });
     }
 }
