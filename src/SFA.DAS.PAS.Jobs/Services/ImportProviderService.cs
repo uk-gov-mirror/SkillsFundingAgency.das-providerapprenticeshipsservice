@@ -16,7 +16,7 @@ public class ImportProviderService(
 
     public async Task ImportProviders()
     {
-        logger.LogInformation("ImportProvidersJob - Started");
+        logger.LogInformation("Import Providers Service - Started");
 
         ApiModels.GetAllProvidersResponse providersResponse = await roatpApiClient.GetProviders();
         var providers = providersResponse?.Organisations;
@@ -40,6 +40,6 @@ public class ImportProviderService(
             await providerRepository.ImportProviders(mappedProviders);
         }
 
-        logger.LogInformation("ImportProvidersJob - Finished");
+        logger.LogInformation("Import Providers Service - Finished");
     }
 }
