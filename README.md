@@ -149,8 +149,8 @@ The `SFA.DAS.PAS.Jobs` project contains functions to import providers from Roatp
     "ConfigNames": "SFA.DAS.PAS.Jobs,SFA.DAS.Provider.DfeSignIn",
     "Version": "1.0",
     "EnvironmentName": "LOCAL",
-    "SynchroniseProvidersFunctionJobSchedule": "0 0 0 * * *",
-    "SynchroniseUsersFunctionJobSchedule": "* */15 * * * *"
+    "SynchroniseProvidersFunctionSchedule": "0 0 0 * * *",
+    "SynchroniseUsersFunctionSchedule": "* */15 * * * *"
   }
 }
 ```

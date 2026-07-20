@@ -8,7 +8,7 @@ namespace SFA.DAS.PAS.Jobs.Functions;
 public class SynchorniseUsersFunction(IUserSyncService userSyncService, ILogger<SynchorniseUsersFunction> logger)
 {
     [Function(nameof(SynchorniseUsersFunction))]
-    public async Task Run([TimerTrigger("%SynchorniseUsersFunctionJobSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
+    public async Task Run([TimerTrigger("%SynchorniseUsersFunctionSchedule%", RunOnStartup = false)] TimerInfo timerInfo)
     {
         logger.LogInformation("SynchorniseUsersFunction started");
 
