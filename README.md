@@ -116,7 +116,7 @@ confusion of different data sources.
 - [Provider Registrations](https://github.com/SkillsFundingAgency/das-provider-registrations)
 
 ### Jobs
-The `SFA.DAS.PAS.Jobs` project contains functions to import providers from commitments and to update users from DfE Sign In. 
+The `SFA.DAS.PAS.Jobs` project contains functions to import providers from Roatp and to update users from DfE Sign In. 
 
 #### Configuration
 - Obtain the [SFA.DAS.PAS.Jobs.json](https://github.com/SkillsFundingAgency/das-employer-config/tree/master/das-providerapprenticeshipservice/SFA.DAS.PAS.Jobs.json) from the `das-employer-config` 
@@ -128,8 +128,8 @@ The `SFA.DAS.PAS.Jobs` project contains functions to import providers from commi
 #### Functions summary
 | Function Name | Trigger | Description |
 |---------------|---------|-------------|
-| ImportProvidersFunction | Timer | Imports provider from commitments API. |
-| UpdateUsersFromDfeSignInFunction | Timer | Updates users from DfE Sign In. |
+| SynchroniseProvidersFunction | Timer | Imports provider from Roatp API. |
+| SynchroniseUsersFunction | Timer | Updates users from DfE Sign In. |
 
 - In the `SFA.DAS.PAS.Jobs` project, add `local.settings.json` file with following content:
 ```json
@@ -149,8 +149,8 @@ The `SFA.DAS.PAS.Jobs` project contains functions to import providers from commi
     "ConfigNames": "SFA.DAS.PAS.Jobs,SFA.DAS.Provider.DfeSignIn",
     "Version": "1.0",
     "EnvironmentName": "LOCAL",
-    "ImportProvidersJobSchedule": "0 0 0 * * *",
-    "UpdateUsersFromDfESignInJobSchedule": "* */15 * * * *"
+    "SynchroniseProvidersFunctionJobSchedule": "0 0 0 * * *",
+    "SynchroniseUsersFunctionJobSchedule": "* */15 * * * *"
   }
 }
 ```

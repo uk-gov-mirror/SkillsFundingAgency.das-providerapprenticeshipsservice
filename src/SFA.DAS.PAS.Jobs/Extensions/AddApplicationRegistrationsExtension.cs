@@ -2,9 +2,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -42,7 +39,7 @@ public static class AddApplicationRegistrationsExtension
         services.AddRefitClient<IRoatpApiClient>()
             .ConfigureHttpClient((serviceProvider, client) =>
             {
-                var roatpConfiguration = serviceProvider.GetRequiredService<RoatpConfiguration>();
+                var roatpConfiguration = serviceProvider.GetRequiredService<RoatpApiConfiguration>();
                 client.BaseAddress = new Uri(roatpConfiguration.ApiBaseUrl.TrimEnd('/') + "/");
             })
             .AddHttpMessageHandler<RoatpApiAuthorizationHandler>()
@@ -84,19 +81,4 @@ public static class AddApplicationRegistrationsExtension
     }
 }
 
-[ExcludeFromCodeCoverage]
-internal sealed class RoatpApiAuthorizationHandler(
-    IAzureClientCredentialHelper azureClientCredentialHelper,
-    RoatpConfiguration config) : DelegatingHandler
-{
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {
-        if (!string.IsNullOrWhiteSpace(config.IdentifierUri))
-        {
-            var accessToken = await azureClientCredentialHelper.GetAccessTokenAsync(config.IdentifierUri);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        }
 
-        return await base.SendAsync(request, cancellationToken);
-    }
-}

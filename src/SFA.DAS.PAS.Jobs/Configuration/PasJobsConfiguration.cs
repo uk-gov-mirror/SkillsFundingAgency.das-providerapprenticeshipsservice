@@ -7,5 +7,5 @@ namespace SFA.DAS.PAS.Jobs.Configuration;
 public class PasJobsConfiguration : IDatabaseConfiguration
 {
     public string DatabaseConnectionString { get; set; }
-    public RoatpConfiguration RoatpApiClient { get; set; }
+    public RoatpApiConfiguration RoatpApiClient { get; set; }
 }

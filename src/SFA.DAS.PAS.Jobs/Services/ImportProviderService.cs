@@ -18,10 +18,10 @@ public class ImportProviderService(
     {
         logger.LogInformation("ImportProvidersJob - Started");
 
-        var providersResponse = await roatpApiClient.GetProviders();
+        ApiModels.GetAllProvidersResponse providersResponse = await roatpApiClient.GetProviders();
         var providers = providersResponse?.Organisations;
 
-        if (providers == null || providers.Count == 0)
+        if (providers.Count == 0)
         {
             logger.LogInformation("ImportProvidersJob - No providers returned");
             return;
