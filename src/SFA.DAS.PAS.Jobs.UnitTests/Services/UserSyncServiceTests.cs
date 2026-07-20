@@ -38,7 +38,7 @@ public class UserSyncServiceTests
     }
 
     [Test, MoqAutoData]
-    public async Task WhenSyncUsers_AndProviderExists_ThenCallsIdamsServiceForProvider(
+    public async Task WhenSyncUsers_AndProviderExists_ThenCallsUserSyncService(
         [Frozen] Mock<IProviderRepository> providerRepository,
         [Frozen] Mock<IApiHelper> apiHelper,
         [Frozen] DfEOidcConfiguration configuration,
