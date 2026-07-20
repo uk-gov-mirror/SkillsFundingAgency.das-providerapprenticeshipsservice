@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SFA.DAS.Api.Common.Interfaces;
 using SFA.DAS.PAS.Jobs.Configuration;
 
-namespace SFA.DAS.PAS.Jobs.Extensions;
+namespace SFA.DAS.PAS.Jobs.Infrastructure;
 
 [ExcludeFromCodeCoverage]
 internal sealed class RoatpApiAuthorizationHandler(

@@ -17,6 +17,7 @@ using SFA.DAS.DfESignIn.Auth.Configuration;
 using SFA.DAS.DfESignIn.Auth.Interfaces;
 using SFA.DAS.PAS.Jobs.ApiClients;
 using SFA.DAS.PAS.Jobs.Configuration;
+using SFA.DAS.PAS.Jobs.Infrastructure;
 using SFA.DAS.PAS.Jobs.Services;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Configurations;
 using SFA.DAS.ProviderApprenticeshipsService.Domain.Interfaces.Data;
