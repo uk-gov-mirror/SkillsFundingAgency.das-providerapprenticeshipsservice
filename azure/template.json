@@ -125,9 +125,6 @@
         "useStubProviderRelationships": {
             "type": "string"
         },
-        "sharedManagementResourceGroup": {
-            "type": "string"
-        },
         "sharedSQLServerName": {
             "type": "string"
         },
@@ -146,6 +143,9 @@
             "defaultValue": "[subscription().subscriptionId]"
         },
         "logAnalyticsWorkspaceName": {
+            "type": "string"
+        },
+        "sharedManagementResourceGroup": {
             "type": "string"
         },
         "resourceGroupLocation": {
@@ -181,6 +181,7 @@
         "apiAppServiceName": "[concat(variables('resourceNamePrefix'), 'api-as')]",
         "uiAppServiceName": "[concat(variables('resourceNamePrefix'), 'ui-as')]",
         "workerAppServiceName": "[concat(variables('resourceNamePrefix'), 'wkr-as')]",
+        "functionAppName": "[concat(variables('resourceNamePrefix'), '-fa')]",
         "workerAppServicePlanName": "[concat(variables('resourceNamePrefix'), 'wkr-asp')]",
         "databaseName": "[concat(variables('resourceNamePrefix'), '-db')]",
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
@@ -344,6 +345,31 @@
                     },
                     "scopedResourceId": {
                         "value": "[reference(concat('WorkerAppInsights-', parameters('utcValue'))).outputs.AppInsightsResourceId.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('deployPrivateLinkedScopedResource')]",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('functionAppName'), '-private-link-scoped-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'private-linked-scoped-resource.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "privateLinkScopeName": {
+                        "value": "[variables('privateLinkScopeName')]"
+                    },
+                    "scopedResourceName": {
+                        "value": "[variables('functionAppName')]"
+                    },
+                    "scopedResourceId": {
+                        "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.AppInsightsResourceId.value]"
                     }
                 }
             }
@@ -769,6 +795,144 @@
         },
         {
             "apiVersion": "2021-04-01",
+            "name": "[concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[variables('functionAppName')]"
+                    },
+                    "attachedService": {
+                        "value": "[variables('functionAppName')]"
+                    },
+                    "logAnalyticsWorkspaceId": {
+                        "value": "[resourceId(parameters('logAnalyticsSubscriptionId'),parameters('sharedManagementResourceGroup'),'Microsoft.OperationalInsights/workspaces',parameters('logAnalyticsWorkspaceName'))]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]"
+            ]
+        },
+        {
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('functionAppName'), '-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'function-app-v2.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "functionAppName": {
+                        "value": "[variables('functionAppName')]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[variables('workerAppServicePlanName')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[variables('resourceGroupName')]"
+                    },
+                    "netFrameworkVersion": {
+                        "value": "v10.0"
+                    },
+                    "subnetResourceId": {
+                        "value": "[reference(concat(parameters('workerSubnetObject').name, '-', parameters('utcValue'))).outputs.subnetResourceId.value]"
+                    },
+                    "functionAppAppSettings": {
+                        "value": {
+                            "array": [
+                                {
+                                    "name": "EnvironmentName",
+                                    "value": "[parameters('environmentName')]"
+                                },
+                                {
+                                    "name": "ConfigurationStorageConnectionString",
+                                    "value": "[parameters('configurationStorageConnectionString')]"
+                                },
+                                {
+                                    "name": "ConfigNames",
+                                    "value": "[variables('configNames')]"
+                                },
+                                {
+                                    "name": "Version",
+                                    "value": "1.0"
+                                },
+                                {
+                                    "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                                    "value": "[reference(concat(variables('functionAppName'), '-application-insights-', parameters('utcValue'))).outputs.ConnectionString.value]"
+                                },
+                                {
+                                    "name": "AzureWebJobsStorage",
+                                    "value": "[parameters('sharedStorageAccountConnectionString')]"
+                                },
+                                {
+                                    "name": "LoggingRedisConnectionString",
+                                    "value": "[parameters('loggingRedisConnectionString')]"
+                                },
+                                {
+                                    "name": "LoggingRedisKey",
+                                    "value": "[parameters('loggingRedisKey')]"
+                                },
+                                {
+                                    "name": "FUNCTIONS_EXTENSION_VERSION",
+                                    "value": "~4"
+                                },
+                                {
+                                    "name": "FUNCTIONS_WORKER_RUNTIME",
+                                    "value": "dotnet-isolated"
+                                },
+                                {
+                                    "name": "WEBSITE_RUN_FROM_PACKAGE",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    },
+                    "ipSecurityRestrictions": {
+                        "value": "[parameters('workerAccessRestrictions')]"
+                    },
+                    "vnetRouteAllEnabled": {
+                        "value": "[parameters('vnetRouteAllEnabled')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[variables('resourceGroupName')]",
+                "[concat(variables('workerAppServiceName'), '-app-service-plan-', parameters('utcValue'))]"
+            ]
+        },
+        {
+            "apiVersion": "2022-09-01",
+            "name": "[concat(variables('functionAppName'), '-cors-policies-', parameters('utcValue'))]",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[variables('resourceGroupName')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('deploymentUrlBase'),'cors-policy.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "functionAppName": {
+                        "value": "[variables('functionAppName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('functionAppName'), '-', parameters('utcValue'))]"
+            ]
+        },
+        {
+            "apiVersion": "2021-04-01",
             "name": "[concat(variables('databaseName'), '-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
@@ -847,6 +1011,10 @@
         "WorkerAppServiceName": {
             "type": "string",
             "value": "[variables('workerAppServiceName')]"
+        },
+        "FunctionAppName": {
+            "type": "string",
+            "value": "[variables('functionAppName')]"
         },
         "DatabaseName": {
             "type": "string",
