@@ -68,6 +68,9 @@
         "sharedKeyVaultName": {
             "type": "string"
         },
+        "sharedStorageAccountConnectionString": {
+            "type": "securestring"
+        },
         "frontEndAccessRestrictions": {
             "type": "array"
         },
