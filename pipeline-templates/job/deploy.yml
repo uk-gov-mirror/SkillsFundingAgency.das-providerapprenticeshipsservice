@@ -92,7 +92,7 @@ jobs:
           parameters:
             ServiceConnection: ${{ parameters.ServiceConnection }}
             FunctionAppName: $(FunctionAppName)
-            DeploymentPackagePath: $(Pipeline.Workspace)/SFA.DAS.PAS.Jobs/SFA.DAS.PAS.Jobs.zip
+            DeploymentPackagePath: $(Pipeline.Workspace)/Publish/SFA.DAS.PAS.Jobs.zip
         - template: azure-pipelines-templates/deploy/step/retain-on-success.yml@das-platform-building-blocks
           parameters:
             Environment: ${{ parameters.Environment }}
