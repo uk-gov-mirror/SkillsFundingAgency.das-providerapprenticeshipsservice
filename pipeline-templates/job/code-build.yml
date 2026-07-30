@@ -53,7 +53,7 @@ jobs:
       #     zipAfterPublish: true
 
       - task: DotNetCoreCLI@2
-        displayName: Publish - dotnet publish ${{ parameters.SolutionBaseName }}
+        displayName: Publish - dotnet publish SFA.DAS.PAS.Jobs
         inputs:
           command: publish
           publishWebProjects: false #set to false as this setting (which defaults to true) will parse the entire repo for web projects
