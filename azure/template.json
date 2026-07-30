@@ -176,6 +176,10 @@
             "metadata": {
                 "description": "Determines whether to enable route table association on subnet"
             }
+        },
+        "vnetRouteAllEnabled": {
+            "type": "bool",
+            "defaultValue": false
         }
     },
     "variables": {
