@@ -23,20 +23,8 @@
         "sharedEnvResourceGroup": {
             "type": "string"
         },
-        "sharedEnvVirtualNetworkName": {
-            "type": "string"
-        },
         "deployPrivateLinkedScopedResource": {
             "type": "bool"
-        },
-        "workerSubnetObject": {
-            "type": "object"
-        },
-        "subnetServiceEndpointList": {
-            "type": "array"
-        },
-        "subnetDelegations": {
-            "type": "array"
         },
         "aspSize": {
             "type": "string",
@@ -157,19 +145,6 @@
         },
         "cdnUrl": {
             "type": "string"
-        },
-        "EnableRouteTableAssociation": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Determines whether to enable route table association on subnet"
-            }
-        },
-        "SharedRouteTableName": {
-            "type": "string",
-            "metadata": {
-                "description": "Determines whether to enable route table association on subnet"
-            }
         }
     },
     "variables": {
@@ -183,10 +158,6 @@
         "resourceGroupName": "[concat(variables('resourceNamePrefix'), '-rg')]",
         "configNames": "SFA.DAS.ProviderApprenticeshipsService,SFA.DAS.Encoding,SFA.DAS.ProviderUrlHelper,SFA.DAS.Provider.DfeSignIn",
         "configNamesApi": "SFA.DAS.PasAccountApi",
-        "routeTableId": {
-            "id": "[resourceId(subscription().subscriptionId, parameters('sharedEnvResourceGroup'), 'Microsoft.Network/routeTables', parameters('SharedRouteTableName'))]"
-        },
-        "emptyObject": {},
         "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]"
     },
     "resources": [
@@ -557,39 +528,6 @@
             "dependsOn": [
                 "[variables('resourceGroupName')]"
             ]
-        },
-        {
-            "apiVersion": "2021-04-01",
-            "name": "[concat(parameters('workerSubnetObject').name, '-', parameters('utcValue'))]",
-            "type": "Microsoft.Resources/deployments",
-            "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[concat(variables('deploymentUrlBase'),'subnet.json')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "virtualNetworkName": {
-                        "value": "[parameters('sharedEnvVirtualNetworkName')]"
-                    },
-                    "subnetName": {
-                        "value": "[parameters('workerSubnetObject').name]"
-                    },
-                    "subnetAddressPrefix": {
-                        "value": "[parameters('workerSubnetObject').addressSpace]"
-                    },
-                    "serviceEndpointList": {
-                        "value": "[parameters('subnetServiceEndpointList')]"
-                    },
-                    "delegations": {
-                        "value": "[parameters('subnetDelegations')]"
-                    },
-                    "routeTable": {
-                        "value": "[if(parameters('enableRouteTableAssociation'), variables('routeTableId') , variables('emptyObject'))]"
-                    }
-                }
-            }
         },
         {
             "apiVersion": "2021-04-01",
